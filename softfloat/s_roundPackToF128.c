@@ -54,7 +54,15 @@ float128_t
     struct uint128_extra sig128Extra;
     uint_fast64_t uiZ64, uiZ0;
     struct uint128 sig128;
-    union ui128_f128 uZ;
+    union ui128_f128 uZ;\
+
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
+    softfloat_intermediateResult->sign     = sign;
+    softfloat_intermediateResult->exp      = exp;
+    softfloat_intermediateResult->sig64    = sig64;
+    softfloat_intermediateResult->sig0     = sig0;
+    softfloat_intermediateResult->sigExtra = sigExtra;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/

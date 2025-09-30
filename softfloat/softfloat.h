@@ -96,6 +96,11 @@ enum {
 };
 
 /*----------------------------------------------------------------------------
+| Pre-rounding result of the last float producing operation
+*----------------------------------------------------------------------------*/
+extern THREAD_LOCAL intermResult_t * softfloat_intermediateResult;
+
+/*----------------------------------------------------------------------------
 | Routine to raise any or all of the software floating-point exception flags.
 *----------------------------------------------------------------------------*/
 void softfloat_raiseFlags( uint_fast8_t );
