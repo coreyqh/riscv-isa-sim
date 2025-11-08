@@ -58,11 +58,11 @@ float128_t
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
-    softfloat_intermediateResult->sign     = sign;
-    softfloat_intermediateResult->exp      = exp;
-    softfloat_intermediateResult->sig64    = sig64;
-    softfloat_intermediateResult->sig0     = sig0;
-    softfloat_intermediateResult->sigExtra = sigExtra;
+    softfloat_intermediateResult.sign     = sign;
+    softfloat_intermediateResult.exp      = exp;
+    softfloat_intermediateResult.sig64    = sig64;
+    softfloat_intermediateResult.sig0     = sig0;
+    softfloat_intermediateResult.sigExtra = sigExtra;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/

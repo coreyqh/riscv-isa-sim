@@ -50,6 +50,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include "softfloat_types.h"
 
+// #if defined(__cplusplus) && !defined(__APPLE__)
+// # define THREAD_LOCAL thread_local
+// #else
+// # define THREAD_LOCAL _Thread_local
+// #endif
+
 #if defined(__cplusplus) && !defined(__APPLE__)
 # define THREAD_LOCAL thread_local
 #else
@@ -98,7 +104,8 @@ enum {
 /*----------------------------------------------------------------------------
 | Pre-rounding result of the last float producing operation
 *----------------------------------------------------------------------------*/
-extern THREAD_LOCAL intermResult_t * softfloat_intermediateResult;
+extern THREAD_LOCAL intermResult_t softfloat_intermediateResult;
+// extern THREAD_LOCAL intermResult_t * softfloat_intermediateResult;
 
 /*----------------------------------------------------------------------------
 | Routine to raise any or all of the software floating-point exception flags.

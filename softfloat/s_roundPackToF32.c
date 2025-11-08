@@ -52,11 +52,11 @@ float32_t
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
-    softfloat_intermediateResult->sign     = sign;
-    softfloat_intermediateResult->exp      = exp;
-    softfloat_intermediateResult->sig64    = sig<<32;
-    softfloat_intermediateResult->sig0     = 0;
-    softfloat_intermediateResult->sigExtra = 0;
+    softfloat_intermediateResult.sign     = sign;
+    softfloat_intermediateResult.exp      = exp;
+    softfloat_intermediateResult.sig64    = sig<<32;
+    softfloat_intermediateResult.sig0     = 0;
+    softfloat_intermediateResult.sigExtra = 0;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/

@@ -52,11 +52,11 @@ bfloat16_t
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
-    softfloat_intermediateResult->sign     = sign;
-    softfloat_intermediateResult->exp      = exp;
-    softfloat_intermediateResult->sig64    = sig<<48;
-    softfloat_intermediateResult->sig0     = 0;
-    softfloat_intermediateResult->sigExtra = 0;
+    softfloat_intermediateResult.sign     = sign;
+    softfloat_intermediateResult.exp      = exp;
+    softfloat_intermediateResult.sig64    = sig<<48;
+    softfloat_intermediateResult.sig0     = 0;
+    softfloat_intermediateResult.sigExtra = 0;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
