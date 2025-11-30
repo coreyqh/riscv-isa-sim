@@ -249,7 +249,10 @@ bool pmpcfg_csr_t::unlogged_write(const reg_t val) noexcept {
     if (i < proc->n_pmp) {
       const bool locked = (state->pmpaddr[i]->cfg & PMP_L);
       if (rlb || !locked) {
-        uint8_t cfg = (val >> (8 * (i - i0))) & (PMP_R | PMP_W | PMP_X | PMP_A | PMP_L);
+        uint8_t all_cfg_fields = (PMP_R | PMP_W | PMP_X | PMP_A |
+            (proc->extension_enabled(EXT_SMPMPMT) ? PMP_MT : 0) |
+            PMP_L);
+        uint8_t cfg = (val >> (8 * (i - i0))) & all_cfg_fields;
         // Drop R=0 W=1 when MML = 0
         // Remove the restriction when MML = 1
         if (!mml) {
@@ -258,6 +261,9 @@ bool pmpcfg_csr_t::unlogged_write(const reg_t val) noexcept {
         // Disallow A=NA4 when granularity > 4
         if (proc->lg_pmp_granularity != PMP_SHIFT && (cfg & PMP_A) == PMP_NA4)
           cfg |= PMP_NAPOT;
+        // MT value 0x3 is reserved
+        if (get_field(cfg, PMP_MT) == 0x3)
+          cfg = set_field(cfg, PMP_MT, 0);
         /*
          * Adding a rule with executable privileges that either is M-mode-only or a locked Shared-Region
          * is not possible and such pmpcfg writes are ignored, leaving pmpcfg unchanged.
@@ -538,11 +544,16 @@ mstatus_csr_t::mstatus_csr_t(processor_t* const proc, const reg_t addr):
   val(compute_mstatus_initial_value()) {
 }
 
+reg_t mstatus_csr_t::read() const noexcept {
+  return val & ~reg_t(state->menvcfg->read() & MENVCFG_DTE ? 0 : MSTATUS_SDT);
+}
+
 bool mstatus_csr_t::unlogged_write(const reg_t val) noexcept {
   const bool has_mpv = proc->extension_enabled('H');
   const bool has_gva = has_mpv;
+  const reg_t adj_write_mask = sstatus_write_mask & ~reg_t(state->menvcfg->read() & MENVCFG_DTE ? 0 : SSTATUS_SDT);
 
-  const reg_t mask = sstatus_write_mask
+  const reg_t mask = adj_write_mask
                    | MSTATUS_MIE | MSTATUS_MPIE
                    | (proc->extension_enabled('U') ? MSTATUS_MPRV : 0)
                    | MSTATUS_MPP | MSTATUS_TW
@@ -552,12 +563,11 @@ bool mstatus_csr_t::unlogged_write(const reg_t val) noexcept {
                    | (has_mpv ? MSTATUS_MPV : 0)
                    | (proc->extension_enabled(EXT_SMDBLTRP) ? MSTATUS_MDT : 0)
                    | (proc->extension_enabled(EXT_ZICFILP) ? (MSTATUS_SPELP | MSTATUS_MPELP) : 0)
-                   | (proc->extension_enabled(EXT_SSDBLTRP) ? SSTATUS_SDT : 0)
                    ;
 
   const reg_t requested_mpp = proc->legalize_privilege(get_field(val, MSTATUS_MPP));
   const reg_t adjusted_val = set_field(val, MSTATUS_MPP, requested_mpp);
-  reg_t new_mstatus = (read() & ~mask) | (adjusted_val & mask);
+  reg_t new_mstatus = (this->val & ~mask) | (adjusted_val & mask);
   new_mstatus = (new_mstatus & MSTATUS_MDT) ? (new_mstatus & ~MSTATUS_MIE) : new_mstatus;
   new_mstatus = (new_mstatus & MSTATUS_SDT) ? (new_mstatus & ~MSTATUS_SIE) : new_mstatus;
   maybe_flush_tlb(new_mstatus);
@@ -728,7 +738,7 @@ bool misa_csr_t::unlogged_write(const reg_t val) noexcept {
   const bool new_h = new_misa & (1L << ('H' - 'A'));
 
   proc->set_extension_enable(EXT_ZCA, (new_misa & (1L << ('C' - 'A'))) || !proc->get_isa().extension_enabled('C'));
-  proc->set_extension_enable(EXT_ZCF, (new_misa & (1L << ('F' - 'A'))) && proc->extension_enabled(EXT_ZCA));
+  proc->set_extension_enable(EXT_ZCF, (new_misa & (1L << ('F' - 'A'))) && proc->extension_enabled(EXT_ZCA) && proc->get_xlen() == 32);
   proc->set_extension_enable(EXT_ZCD, (new_misa & (1L << ('D' - 'A'))) && proc->extension_enabled(EXT_ZCA));
   proc->set_extension_enable(EXT_ZCB, proc->extension_enabled(EXT_ZCA));
   proc->set_extension_enable(EXT_ZCMP, proc->extension_enabled(EXT_ZCA));
@@ -766,6 +776,8 @@ bool misa_csr_t::unlogged_write(const reg_t val) noexcept {
       state->mevent[i]->write(new_mevent);
     }
   }
+
+  proc->get_mmu()->flush_tlb();
 
   return basic_csr_t::unlogged_write(new_misa);
 }
@@ -966,8 +978,11 @@ medeleg_csr_t::medeleg_csr_t(processor_t* const proc, const reg_t addr):
                         | (1 << CAUSE_FETCH_GUEST_PAGE_FAULT)
                         | (1 << CAUSE_LOAD_GUEST_PAGE_FAULT)
                         | (1 << CAUSE_VIRTUAL_INSTRUCTION)
-                        | (1 << CAUSE_STORE_GUEST_PAGE_FAULT)
-                        ) {
+                        | (1 << CAUSE_STORE_GUEST_PAGE_FAULT)),
+  mmu_exceptions(0
+                 | (1 << CAUSE_FETCH_PAGE_FAULT)
+                 | (1 << CAUSE_LOAD_PAGE_FAULT)
+                 | (1 << CAUSE_STORE_PAGE_FAULT)) {
 }
 
 void medeleg_csr_t::verify_permissions(insn_t insn, bool write) const {
@@ -988,9 +1003,7 @@ bool medeleg_csr_t::unlogged_write(const reg_t val) noexcept {
     | (1 << CAUSE_STORE_ACCESS)
     | (1 << CAUSE_USER_ECALL)
     | (1 << CAUSE_SUPERVISOR_ECALL)
-    | (1 << CAUSE_FETCH_PAGE_FAULT)
-    | (1 << CAUSE_LOAD_PAGE_FAULT)
-    | (1 << CAUSE_STORE_PAGE_FAULT)
+    | (proc->supports_impl(IMPL_MMU) ? mmu_exceptions : 0)
     | (proc->extension_enabled('H') ? hypervisor_exceptions : 0)
     | (1 << CAUSE_SOFTWARE_CHECK_FAULT)
     | (1 << CAUSE_HARDWARE_ERROR_FAULT)
@@ -2020,7 +2033,8 @@ hstatus_csr_t::hstatus_csr_t(processor_t* const proc, const reg_t addr):
 }
 
 bool hstatus_csr_t::unlogged_write(const reg_t val) noexcept {
-  const reg_t mask = HSTATUS_VTSR | HSTATUS_VTW
+  const reg_t mask = (proc->extension_enabled(EXT_SVUKTE) ? HSTATUS_HUKTE  : 0)
+    | HSTATUS_VTSR | HSTATUS_VTW
     | (proc->supports_impl(IMPL_MMU) ? HSTATUS_VTVM : 0)
     | (proc->extension_enabled(EXT_SSNPM) ? HSTATUS_HUPMM : 0)
     | HSTATUS_HU | HSTATUS_SPVP | HSTATUS_SPV | HSTATUS_GVA;
@@ -2141,7 +2155,7 @@ inaccessible_csr_t::inaccessible_csr_t(processor_t* const proc, const reg_t addr
   csr_t(proc, addr) {
 }
 
-void inaccessible_csr_t::verify_permissions(insn_t insn, bool write) const {
+void inaccessible_csr_t::verify_permissions(insn_t insn, bool UNUSED write) const {
   if (state->v)
     throw trap_virtual_instruction(insn.bits());
   else

@@ -223,22 +223,13 @@ void processor_t::step(size_t n)
     }
   }
 
-  if (extension_enabled(EXT_ZICCID)) {
-    // Ziccid requires stores eventually become visible to instruction fetch,
-    // so periodically flush the I$
-    if (ziccid_flush_count-- == 0) {
-      ziccid_flush_count += ZICCID_FLUSH_PERIOD;
-      _mmu->flush_icache();
-    }
-  }
-
   while (n > 0) {
     size_t instret = 0;
     reg_t pc = state.pc;
     state.prv_changed = false;
     state.v_changed = false;
 
-    #define advance_pc() \
+    #define advance_pc() { \
       if (unlikely(invalid_pc(pc))) { \
         switch (pc) { \
           case PC_SERIALIZE_BEFORE: state.serialized = true; break; \
@@ -246,11 +237,11 @@ void processor_t::step(size_t n)
           default: abort(); \
         } \
         pc = state.pc; \
-        break; \
+        goto serialize; \
       } else { \
         state.pc = pc; \
         instret++; \
-      }
+      }}
 
     try
     {
@@ -311,19 +302,21 @@ void processor_t::step(size_t n)
       else while (instret < n)
       {
         // Main simulation loop, fast path.
-        for (auto ic_entry = _mmu->access_icache(pc); ; ) {
+        for (auto ic_entry = _mmu->access_icache(pc); instret < n; instret++) {
           auto fetch = ic_entry->data;
-          pc = execute_insn_fast(this, pc, fetch);
           ic_entry = ic_entry->next;
-          if (unlikely(ic_entry->tag != pc))
-            break;
-          if (unlikely(instret + 1 == n))
-            break;
-          instret++;
-          state.pc = pc;
+          auto new_pc = execute_insn_fast(this, pc, fetch);
+          if (unlikely(ic_entry->tag != new_pc)) {
+            ic_entry = &_mmu->icache[_mmu->icache_index(new_pc)];
+            _mmu->icache[_mmu->icache_index(pc)].next = ic_entry;
+            if (ic_entry->tag != new_pc) {
+              pc = new_pc;
+              advance_pc();
+              break;
+            }
+          }
+          state.pc = pc = ic_entry->tag;
         }
-
-        advance_pc();
       }
     }
     catch(trap_t& t)
@@ -370,6 +363,7 @@ void processor_t::step(size_t n)
       in_wfi = true;
     }
 
+serialize:
     state.minstret->bump((state.mcountinhibit->read() & MCOUNTINHIBIT_IR) ? 0 : instret);
 
     // Model a hart whose CPI is 1.

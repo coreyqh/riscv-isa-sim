@@ -152,6 +152,7 @@ struct state_t
   bool debug_mode;
 
   mseccfg_csr_t_p mseccfg;
+  csr_t_p mseccfgh;
 
   static const int max_pmp = 64;
   pmpaddr_csr_t_p pmpaddr[max_pmp];
@@ -330,10 +331,7 @@ public:
     const int ialign = extension_enabled(EXT_ZCA) ? 16 : 32;
     return ~(reg_t)(ialign == 16 ? 0 : 2);
   }
-  void check_pc_alignment(reg_t pc) {
-    if (unlikely(pc & ~pc_alignment_mask()))
-      throw trap_instruction_address_misaligned(state.v, pc, 0, 0);
-  }
+  reg_t throw_instruction_address_misaligned(reg_t pc);
   reg_t legalize_privilege(reg_t);
   void set_privilege(reg_t, bool);
   const char* get_privilege_string() const;
@@ -378,6 +376,7 @@ public:
   bool is_waiting_for_interrupt() { return in_wfi; };
 
   void check_if_lpad_required();
+  reg_t set_lpad_expected(reg_t pc);
 
   reg_t select_an_interrupt_with_default_priority(reg_t enabled_interrupts) const;
 
@@ -412,9 +411,6 @@ private:
 
   static const size_t OPCODE_CACHE_SIZE = 4095;
   opcode_cache_entry_t opcode_cache[OPCODE_CACHE_SIZE];
-
-  unsigned ziccid_flush_count = 0;
-  static const unsigned ZICCID_FLUSH_PERIOD = 10;
 
   void take_pending_interrupt() { take_interrupt(state.mip->read() & state.mie->read()); }
   void take_interrupt(reg_t mask); // take first enabled interrupt in mask
