@@ -387,7 +387,6 @@ bool extF80M_isSignalingNaN( const extFloat80_t * );
 /*----------------------------------------------------------------------------
 | 128-bit (quadruple-precision) floating-point operations.
 *----------------------------------------------------------------------------*/
-#define SOFTFLOAT_FAST_INT64
 #ifdef SOFTFLOAT_FAST_INT64
 uint_fast32_t f128_to_ui32( float128_t, uint_fast8_t, bool );
 uint_fast64_t f128_to_ui64( float128_t, uint_fast8_t, bool );
