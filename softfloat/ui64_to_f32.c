@@ -42,22 +42,40 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 float32_t ui64_to_f32( uint64_t a )
 {
     int_fast8_t shiftDist;
+    int_fast8_t shiftDist64;
     union ui32_f32 u;
     uint_fast32_t sig;
+    uint_fast64_t sig64;
 
     shiftDist = softfloat_countLeadingZeros64( a ) - 40;
     if ( 0 <= shiftDist ) {
+        // Extract from the pack call
+        softfloat_intermediateResult.sign     = 0;
+        softfloat_intermediateResult.exp      = a ? 0x95 - shiftDist + 1 : 0;
+        softfloat_intermediateResult.sig64    = a ? (a << shiftDist << 32 << 7) : 0;
+        softfloat_intermediateResult.sig0     = 0;
+        softfloat_intermediateResult.sigExtra = 0;
+
         u.ui =
             a ? packToF32UI(
                     0, 0x95 - shiftDist, (uint_fast32_t) a<<shiftDist )
                 : 0;
         return u.f;
     } else {
+        // This code puts the a significand into the correct place
         shiftDist += 7;
         sig =
             (shiftDist < 0) ? softfloat_shortShiftRightJam64( a, -shiftDist )
                 : (uint_fast32_t) a<<shiftDist;
-        return softfloat_roundPackToF32( 0, 0x9C - shiftDist, sig );
+        
+        shiftDist64 = shiftDist + 32;
+        // printf("%d\n", shiftDist64);
+        sig64 =
+            (shiftDist64 < 0)
+                ? softfloat_shortShiftRightJam64( a, -shiftDist64 )
+                : (uint_fast64_t) a<<shiftDist64;
+
+        return softfloat_roundPackToF32( 0, 0x9C - shiftDist, sig, sig64 );
     }
 
 }

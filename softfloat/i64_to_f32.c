@@ -45,25 +45,43 @@ float32_t i64_to_f32( int64_t a )
     bool sign;
     uint_fast64_t absA;
     int_fast8_t shiftDist;
+    int_fast8_t shiftDist64;
     union ui32_f32 u;
     uint_fast32_t sig;
+    uint_fast64_t sig64;
 
     sign = (a < 0);
     absA = sign ? -(uint_fast64_t) a : (uint_fast64_t) a;
     shiftDist = softfloat_countLeadingZeros64( absA ) - 40;
     if ( 0 <= shiftDist ) {
+        // Extract from the pack call
+        // Right now, we put the leading one in bit 24
+        softfloat_intermediateResult.sign     = sign;
+        softfloat_intermediateResult.exp      = a ? 0x95 - shiftDist + 1 : 0;
+        softfloat_intermediateResult.sig64    = a ? (absA << shiftDist << 32 << 7) : 0;
+        softfloat_intermediateResult.sig0     = 0;
+        softfloat_intermediateResult.sigExtra = 0;
+
         u.ui =
             a ? packToF32UI(
                     sign, 0x95 - shiftDist, (uint_fast32_t) absA<<shiftDist )
                 : 0;
         return u.f;
     } else {
+        // This code puts the A significand into the correct place
         shiftDist += 7;
         sig =
             (shiftDist < 0)
                 ? softfloat_shortShiftRightJam64( absA, -shiftDist )
                 : (uint_fast32_t) absA<<shiftDist;
-        return softfloat_roundPackToF32( sign, 0x9C - shiftDist, sig );
+        
+        shiftDist64 = shiftDist + 32;
+        sig64 =
+            (shiftDist64 < 0)
+                ? softfloat_shortShiftRightJam64( absA, -shiftDist64 )
+                : (uint_fast64_t) absA << shiftDist64;
+
+        return softfloat_roundPackToF32( sign, 0x9C - shiftDist, sig, sig64 );
     }
 
 }

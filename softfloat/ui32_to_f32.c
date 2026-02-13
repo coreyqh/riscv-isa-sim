@@ -44,13 +44,19 @@ float32_t ui32_to_f32( uint32_t a )
     union ui32_f32 uZ;
 
     if ( ! a ) {
+        softfloat_intermediateResult.sign     = 0;
+        softfloat_intermediateResult.exp      = 0;
+        softfloat_intermediateResult.sig64    = 0;
+        softfloat_intermediateResult.sig0     = 0;
+        softfloat_intermediateResult.sigExtra = 0;
+        
         uZ.ui = 0;
         return uZ.f;
     }
     if ( a & 0x80000000 ) {
-        return softfloat_roundPackToF32( 0, 0x9D, a>>1 | (a & 1) );
+        return softfloat_roundPackToF32( 0, 0x9D, a>>1 | (a & 1), (uint_fast64_t) a << 31 );
     } else {
-        return softfloat_normRoundPackToF32( 0, 0x9C, a );
+        return softfloat_normRoundPackToF32( 0, 0x9C, a, (uint_fast64_t) a << 32 );
     }
 
 }

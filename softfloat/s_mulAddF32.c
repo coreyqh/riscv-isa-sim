@@ -123,10 +123,12 @@ float32_t
         --expProd;
         sigProd <<= 1;
     }
+    printf("expProd (c): %d\n", expProd);
     signZ = signProd;
     if ( ! expC ) {
         if ( ! sigC ) {
             expZ = expProd - 1;
+            sig64Z = sigProd;
             sigZ = softfloat_shortShiftRightJam64( sigProd, 31 );
             goto roundPack;
         }
@@ -143,6 +145,7 @@ float32_t
         *--------------------------------------------------------------------*/
         if ( expDiff <= 0 ) {
             expZ = expC;
+            sig64Z = ((uint_fast64_t) sigC << 32) + softfloat_shiftRightJam64(sigProd, -expDiff);
             sigZ = sigC + softfloat_shiftRightJam64( sigProd, 32 - expDiff );
         } else {
             expZ = expProd;
@@ -153,9 +156,12 @@ float32_t
             sigZ = softfloat_shortShiftRightJam64( sig64Z, 32 );
         }
         if ( sigZ < 0x40000000 ) {
+            printf("expZ: %d\n", expZ);
             --expZ;
             sigZ <<= 1;
+            sig64Z <<= 1;
         }
+        printf("expZ: %d\n", expZ);
     } else {
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
@@ -186,7 +192,8 @@ float32_t
         }
     }
  roundPack:
-    return softfloat_roundPackToF32( signZ, expZ, sigZ );
+    printf("expZ (c): %d\n", expZ);
+    return softfloat_roundPackToF32( signZ, expZ, sigZ, sig64Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN_ABC:

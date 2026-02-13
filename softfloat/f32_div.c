@@ -151,7 +151,8 @@ float32_t f32_div( float32_t a, float32_t b )
         }
     }
 #endif
-    return softfloat_roundPackToF32( signZ, expZ, sigZ );
+    // There is no more interesting information to be had from division
+    return softfloat_roundPackToF32( signZ, expZ, sigZ, (uint_fast64_t) sigZ << 32 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

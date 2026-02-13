@@ -38,9 +38,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include "platform.h"
 #include "internals.h"
+#include "softfloat.h"
 
 float32_t
- softfloat_normRoundPackToF32( bool sign, int_fast16_t exp, uint_fast32_t sig )
+ softfloat_normRoundPackToF32( bool sign, int_fast16_t exp, uint_fast32_t sig, uint_fast64_t sig64 )
 {
     int_fast8_t shiftDist;
     union ui32_f32 uZ;
@@ -48,10 +49,20 @@ float32_t
     shiftDist = softfloat_countLeadingZeros32( sig ) - 1;
     exp -= shiftDist;
     if ( (7 <= shiftDist) && ((unsigned int) exp < 0xFD) ) {
+        printf("norm_round_pack, exp: %llx, interm_exp: %llx\n", exp, softfloat_intermediateResult.exp);
+        // softfloat_intermediateResult.sign     = sign;
+        // softfloat_intermediateResult.exp      = sig ? exp : 0;
+        // if (sig64 != 0) {
+        //     softfloat_intermediateResult.sig64    = ((uint_fast64_t) sig << (shiftDist) << 32);
+        //     softfloat_intermediateResult.sig0     = 0;
+        //     softfloat_intermediateResult.sigExtra = 0;
+        // }
+
         uZ.ui = packToF32UI( sign, sig ? exp : 0, sig<<(shiftDist - 7) );
         return uZ.f;
     } else {
-        return softfloat_roundPackToF32( sign, exp, sig<<shiftDist );
+        // printf("that way? %llx, %llx\n", sig64, sig64 << shiftDist);
+        return softfloat_roundPackToF32( sign, exp, sig<<shiftDist, sig64 << shiftDist );
     }
 
 }

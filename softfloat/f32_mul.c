@@ -58,6 +58,7 @@ float32_t f32_mul( float32_t a, float32_t b )
     struct exp16_sig32 normExpSig;
     int_fast16_t expZ;
     uint_fast32_t sigZ, uiZ;
+    uint_fast64_t sigZ64;
     union ui32_f32 uZ;
 
     /*------------------------------------------------------------------------
@@ -104,12 +105,14 @@ float32_t f32_mul( float32_t a, float32_t b )
     expZ = expA + expB - 0x7F;
     sigA = (sigA | 0x00800000)<<7;
     sigB = (sigB | 0x00800000)<<8;
+    sigZ64 = (uint_fast64_t) sigA * sigB;
     sigZ = softfloat_shortShiftRightJam64( (uint_fast64_t) sigA * sigB, 32 );
     if ( sigZ < 0x40000000 ) {
         --expZ;
         sigZ <<= 1;
+        sigZ64 <<= 1;
     }
-    return softfloat_roundPackToF32( signZ, expZ, sigZ );
+    return softfloat_roundPackToF32( signZ, expZ, sigZ, sigZ64 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

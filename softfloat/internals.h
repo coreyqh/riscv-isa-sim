@@ -162,8 +162,9 @@ bfloat16_t softfloat_roundPackToBF16( bool, int_fast16_t, uint_fast16_t );
 struct exp16_sig32 { int_fast16_t exp; uint_fast32_t sig; };
 struct exp16_sig32 softfloat_normSubnormalF32Sig( uint_fast32_t );
 
-float32_t softfloat_roundPackToF32( bool, int_fast16_t, uint_fast32_t );
-float32_t softfloat_normRoundPackToF32( bool, int_fast16_t, uint_fast32_t );
+#define SIG64_LEADING_ONE 0x4000000000000000
+float32_t softfloat_roundPackToF32( bool, int_fast16_t, uint_fast32_t, uint_fast64_t );
+float32_t softfloat_normRoundPackToF32( bool, int_fast16_t, uint_fast32_t, uint_fast64_t );
 
 float32_t softfloat_addMagsF32( uint_fast32_t, uint_fast32_t );
 float32_t softfloat_subMagsF32( uint_fast32_t, uint_fast32_t );

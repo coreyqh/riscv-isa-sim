@@ -151,7 +151,7 @@ float32_t f32_rem( float32_t a, float32_t b )
         signRem = ! signRem;
         rem = -rem;
     }
-    return softfloat_normRoundPackToF32( signRem, expB, rem );
+    return softfloat_normRoundPackToF32( signRem, expB, rem, (uint_fast64_t) rem << 32 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:
