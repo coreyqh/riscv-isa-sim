@@ -53,7 +53,7 @@ float16_t
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     softfloat_intermediateResult.sign     = sign;
-    softfloat_intermediateResult.exp      = exp;
+    softfloat_intermediateResult.exp      = exp + 1;
     softfloat_intermediateResult.sig64    = ((uint64_t)sig) << (uint64_t)48ULL;
     softfloat_intermediateResult.sig0     = 0;
     softfloat_intermediateResult.sigExtra = 0;

@@ -53,7 +53,7 @@ float64_t
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     softfloat_intermediateResult.sign     = sign;
-    softfloat_intermediateResult.exp      = exp;
+    softfloat_intermediateResult.exp      = exp + 1;
     softfloat_intermediateResult.sig64    = sig;
     softfloat_intermediateResult.sig0     = 0;
     softfloat_intermediateResult.sigExtra = 0;
