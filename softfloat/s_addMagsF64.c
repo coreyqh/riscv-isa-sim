@@ -45,12 +45,15 @@ float64_t
 {
     int_fast16_t expA;
     uint_fast64_t sigA;
+    struct uint128 sigA128;
     int_fast16_t expB;
     uint_fast64_t sigB;
+    struct uint128 sigB128;
     int_fast16_t expDiff;
     uint_fast64_t uiZ;
     int_fast16_t expZ;
     uint_fast64_t sigZ;
+    struct uint128 sig128Z;
     union ui64_f64 uZ;
 
     /*------------------------------------------------------------------------
@@ -77,6 +80,8 @@ float64_t
         expZ = expA;
         sigZ = UINT64_C( 0x0020000000000000 ) + sigA + sigB;
         sigZ <<= 9;
+        sig128Z.v64 = sigZ;
+        sig128Z.v0 = 0;
     } else {
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
@@ -94,6 +99,9 @@ float64_t
             } else {
                 sigA <<= 1;
             }
+            sigA128 = softfloat_shiftRightJam128(sigA, 0, -expDiff);
+            sigB128.v64 = sigB;
+            sigB128.v0 = 0;
             sigA = softfloat_shiftRightJam64( sigA, -expDiff );
         } else {
             if ( expA == 0x7FF ) {
@@ -107,15 +115,20 @@ float64_t
             } else {
                 sigB <<= 1;
             }
+            sigB128 = softfloat_shiftRightJam128(sigB, 0, expDiff);
+            sigA128.v64 = sigA;
+            sigA128.v0 = 0;
             sigB = softfloat_shiftRightJam64( sigB, expDiff );
         }
+        sig128Z = softfloat_add128(sigA128.v64 | UINT64_C( 0x2000000000000000 ), sigA128.v0, sigB128.v64, sigB128.v0);
         sigZ = UINT64_C( 0x2000000000000000 ) + sigA + sigB;
         if ( sigZ < UINT64_C( 0x4000000000000000 ) ) {
             --expZ;
             sigZ <<= 1;
+            sig128Z = softfloat_shortShiftLeft128(sig128Z.v64, sig128Z.v0, 1);
         }
     }
-    return softfloat_roundPackToF64( signZ, expZ, sigZ );
+    return softfloat_roundPackToF64( signZ, expZ, sigZ, sig128Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

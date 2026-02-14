@@ -129,6 +129,7 @@ float64_t
         if ( ! sigC ) {
             --expZ;
             sigZ = sig128Z.v64<<1 | (sig128Z.v0 != 0);
+            sig128Z = softfloat_shortShiftLeft128(sig128Z.v64, sig128Z.v0, 1);
             goto roundPack;
         }
         normExpSig = softfloat_normSubnormalF64Sig( sigC );
@@ -142,7 +143,9 @@ float64_t
     if ( expDiff < 0 ) {
         expZ = expC;
         if ( (signZ == signC) || (expDiff < -1) ) {
-            sig128Z.v64 = softfloat_shiftRightJam64( sig128Z.v64, -expDiff );
+            // sig128Z.v64 = softfloat_shiftRightJam64( sig128Z.v64, -expDiff );
+            // CAN WE GET AWAY WITH THIS?
+            sig128Z = softfloat_shiftRightJam128( sig128Z.v64, sig128Z.v0, -expDiff );
         } else {
             sig128Z =
                 softfloat_shortShiftRightJam128( sig128Z.v64, sig128Z.v0, 1 );
@@ -166,6 +169,7 @@ float64_t
         if ( sigZ < UINT64_C( 0x4000000000000000 ) ) {
             --expZ;
             sigZ <<= 1;
+            sig128Z = softfloat_shortShiftLeft128( sig128Z.v64, sig128Z.v0, 1 );
         }
     } else {
         /*--------------------------------------------------------------------
@@ -196,6 +200,7 @@ float64_t
         expZ -= shiftDist;
         if ( shiftDist < 0 ) {
             sigZ = softfloat_shortShiftRightJam64( sig128Z.v64, -shiftDist );
+            sig128Z = softfloat_shortShiftRightJam128( sig128Z.v64, sig128Z.v0, -shiftDist );
         } else {
             sig128Z =
                 softfloat_shortShiftLeft128(
@@ -205,7 +210,7 @@ float64_t
         sigZ |= (sig128Z.v0 != 0);
     }
  roundPack:
-    return softfloat_roundPackToF64( signZ, expZ, sigZ );
+    return softfloat_roundPackToF64( signZ, expZ, sigZ, sig128Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN_ABC:

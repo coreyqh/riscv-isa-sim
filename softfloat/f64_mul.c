@@ -122,7 +122,7 @@ float64_t f64_mul( float64_t a, float64_t b )
         --expZ;
         sigZ <<= 1;
     }
-    return softfloat_roundPackToF64( signZ, expZ, sigZ );
+    return softfloat_roundPackToF64( signZ, expZ, sigZ, sig128Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

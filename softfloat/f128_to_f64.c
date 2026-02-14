@@ -87,9 +87,11 @@ float64_t f128_to_f64( float128_t a )
     if ( sizeof (int_fast16_t) < sizeof (int_fast32_t) ) {
         if ( exp < -0x1000 ) exp = -0x1000;
     }
+
+    frac128.v64 |= UINT64_C( 0x4000000000000000 );
     return
         softfloat_roundPackToF64(
-            sign, exp, frac64 | UINT64_C( 0x4000000000000000 ) );
+            sign, exp, frac64 | UINT64_C( 0x4000000000000000 ), frac128 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  uiZ:

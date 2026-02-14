@@ -62,6 +62,7 @@ float64_t f64_div( float64_t a, float64_t b )
     uint_fast64_t sigZ;
     uint_fast64_t uiZ;
     union ui64_f64 uZ;
+    struct uint128 sig128Z;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
@@ -143,7 +144,9 @@ float64_t f64_div( float64_t a, float64_t b )
             if ( rem ) sigZ |= 1;
         }
     }
-    return softfloat_roundPackToF64( signZ, expZ, sigZ );
+    sig128Z.v64 = sigZ;
+    sig128Z.v0 = 0;
+    return softfloat_roundPackToF64( signZ, expZ, sigZ, sig128Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

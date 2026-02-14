@@ -42,6 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 float64_t ui64_to_f64( uint64_t a )
 {
     union ui64_f64 uZ;
+    struct uint128 Z128;
 
     if ( ! a ) {
         uZ.ui = 0;
@@ -50,9 +51,11 @@ float64_t ui64_to_f64( uint64_t a )
     if ( a & UINT64_C( 0x8000000000000000 ) ) {
         return
             softfloat_roundPackToF64(
-                0, 0x43D, softfloat_shortShiftRightJam64( a, 1 ) );
+                0, 0x43D, softfloat_shortShiftRightJam64( a, 1 ), softfloat_shortShiftRightJam128( a, 0, 1 ) );
     } else {
-        return softfloat_normRoundPackToF64( 0, 0x43C, a );
+        Z128.v64 = a;
+        Z128.v0 = 0;
+        return softfloat_normRoundPackToF64( 0, 0x43C, a, Z128 );
     }
 
 }

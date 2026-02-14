@@ -61,6 +61,7 @@ float64_t f64_rem( float64_t a, float64_t b )
     bool signRem;
     uint_fast64_t uiZ;
     union ui64_f64 uZ;
+    struct uint128 sigZ128;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
@@ -172,7 +173,9 @@ float64_t f64_rem( float64_t a, float64_t b )
         signRem = ! signRem;
         rem = -rem;
     }
-    return softfloat_normRoundPackToF64( signRem, expB, rem );
+    sigZ128.v64 = rem;
+    sigZ128.v0 = 0;
+    return softfloat_normRoundPackToF64( signRem, expB, rem, sigZ128 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:
