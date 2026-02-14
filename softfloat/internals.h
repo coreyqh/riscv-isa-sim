@@ -149,7 +149,7 @@ float16_t
  softfloat_mulAddF16(
      uint_fast16_t, uint_fast16_t, uint_fast16_t, uint_fast8_t );
 
-bfloat16_t softfloat_roundPackToBF16( bool, int_fast16_t, uint_fast16_t );
+bfloat16_t softfloat_roundPackToBF16( bool, int_fast16_t, uint_fast16_t, uint_fast32_t );
 /*----------------------------------------------------------------------------
 *----------------------------------------------------------------------------*/
 #define signF32UI( a ) ((bool) ((uint32_t) (a)>>31))

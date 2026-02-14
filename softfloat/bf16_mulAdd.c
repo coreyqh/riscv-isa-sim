@@ -57,6 +57,9 @@ bfloat16_t bf16_mulAdd( bfloat16_t a, bfloat16_t b, bfloat16_t c )
 
     /* When rounding down, return -0 instead of +0 when product's sign
      * differs from C's sign. */
+
+    softfloat_clearIntermResults();
+
     if ( softfloat_roundingMode == softfloat_round_min
              && sum.v == 0
              && ( ( prod.v ^ f64C.v ) & 0x8000000000000000U ) != 0 )
