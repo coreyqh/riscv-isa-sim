@@ -42,8 +42,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 float16_t ui64_to_f16( uint64_t a )
 {
     int_fast8_t shiftDist;
+    int_fast8_t shiftDist64;
     union ui16_f16 u;
     uint_fast16_t sig;
+    uint_fast64_t sig64;
 
     shiftDist = softfloat_countLeadingZeros64( a ) - 53;
     if ( 0 <= shiftDist ) {
@@ -57,7 +59,18 @@ float16_t ui64_to_f16( uint64_t a )
         sig =
             (shiftDist < 0) ? softfloat_shortShiftRightJam64( a, -shiftDist )
                 : (uint_fast16_t) a<<shiftDist;
-        return softfloat_roundPackToF16( 0, 0x1C - shiftDist, sig );
+
+        // We lose information if we pass it as sig32
+        shiftDist64 = shiftDist + 48;
+        sig64 =
+            (shiftDist64 < 0)
+                ? softfloat_shortShiftRightJam64( a, -shiftDist64 )
+                : (uint_fast16_t) a<<shiftDist64;
+        softfloat_intermediateResult.sig64 = sig64;
+        softfloat_intermediateResult.sig0 = 0;
+        softfloat_intermediateResult.sigExtra = 0;
+
+        return softfloat_roundPackToF16( 0, 0x1C - shiftDist, sig, 0 );
     }
 
 }

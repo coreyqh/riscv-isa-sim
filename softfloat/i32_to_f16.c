@@ -45,8 +45,10 @@ float16_t i32_to_f16( int32_t a )
     bool sign;
     uint_fast32_t absA;
     int_fast8_t shiftDist;
+    int_fast8_t shiftDist32;
     union ui16_f16 u;
     uint_fast16_t sig;
+    uint_fast32_t sig32;
 
     sign = (a < 0);
     absA = sign ? -(uint_fast32_t) a : (uint_fast32_t) a;
@@ -64,7 +66,14 @@ float16_t i32_to_f16( int32_t a )
                 ? absA>>(-shiftDist)
                       | ((uint32_t) (absA<<(shiftDist & 31)) != 0)
                 : (uint_fast16_t) absA<<shiftDist;
-        return softfloat_roundPackToF16( sign, 0x1C - shiftDist, sig );
+        
+        shiftDist32 = shiftDist + 16;
+        sig32 = 
+            (shiftDist32 < 0) 
+                ? softfloat_shiftRightJam32(absA, -shiftDist32)
+                : (uint_fast32_t) absA << shiftDist32;
+
+        return softfloat_roundPackToF16( sign, 0x1C - shiftDist, sig, sig32 );
     }
 
 }

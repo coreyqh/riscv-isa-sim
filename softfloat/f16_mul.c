@@ -111,8 +111,9 @@ float16_t f16_mul( float16_t a, float16_t b )
     if ( sigZ < 0x4000 ) {
         --expZ;
         sigZ <<= 1;
+        sig32Z <<= 1;
     }
-    return softfloat_roundPackToF16( signZ, expZ, sigZ );
+    return softfloat_roundPackToF16( signZ, expZ, sigZ, sig32Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

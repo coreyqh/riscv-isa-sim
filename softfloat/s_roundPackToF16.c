@@ -41,7 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "softfloat.h"
 
 float16_t
- softfloat_roundPackToF16( bool sign, int_fast16_t exp, uint_fast16_t sig )
+ softfloat_roundPackToF16( bool sign, int_fast16_t exp, uint_fast16_t sig, uint_fast32_t sig32 )
 {
     uint_fast8_t roundingMode;
     bool roundNearEven;
@@ -54,9 +54,12 @@ float16_t
     *------------------------------------------------------------------------*/
     softfloat_intermediateResult.sign     = sign;
     softfloat_intermediateResult.exp      = exp + 1;
-    softfloat_intermediateResult.sig64    = ((uint64_t)sig) << (uint64_t)48ULL;
-    softfloat_intermediateResult.sig0     = 0;
-    softfloat_intermediateResult.sigExtra = 0;
+    // softfloat_intermediateResult.sig64    = ((uint64_t)sig) << (uint64_t)48ULL;
+    if (sig32 != 0) {
+        softfloat_intermediateResult.sig64    = ((uint64_t)sig32) << 32ULL;
+        softfloat_intermediateResult.sig0     = 0;
+        softfloat_intermediateResult.sigExtra = 0;
+    }
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/

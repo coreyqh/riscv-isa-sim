@@ -143,6 +143,7 @@ float16_t
         *--------------------------------------------------------------------*/
         if ( expDiff <= 0 ) {
             expZ = expC;
+            sig32Z = (sigC << 16) + softfloat_shiftRightJam32(sigProd, -expDiff);
             sigZ = sigC + softfloat_shiftRightJam32( sigProd, 16 - expDiff );
         } else {
             expZ = expProd;
@@ -155,6 +156,7 @@ float16_t
         if ( sigZ < 0x4000 ) {
             --expZ;
             sigZ <<= 1;
+            sig32Z <<= 1;
         }
     } else {
         /*--------------------------------------------------------------------
@@ -186,9 +188,16 @@ float16_t
         } else {
             sigZ = (uint_fast16_t) sig32Z<<shiftDist;
         }
+
+        shiftDist += 16;
+        if (shiftDist < 0) {
+            sig32Z = softfloat_shiftRightJam32(sig32Z, -shiftDist);
+        } else {
+            sig32Z <<= shiftDist;
+        }
     }
  roundPack:
-    return softfloat_roundPackToF16( signZ, expZ, sigZ );
+    return softfloat_roundPackToF16( signZ, expZ, sigZ, sig32Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN_ABC:
