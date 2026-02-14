@@ -50,7 +50,7 @@ float32_t
     uint_fast32_t uiZ;
     union ui32_f32 uZ;
 
-    printf("roundpack: %d\n", exp);
+    // printf("roundpack: %d\n", exp);
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
@@ -116,11 +116,11 @@ float32_t
     if ( ! sig ) exp = 0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
-    printf("round_pack: %llx_%llx\n", exp, sig);
+    // printf("round_pack: %llx_%llx\n", exp, sig);
  packReturn:
     uiZ = packToF32UI( sign, exp, sig );
  uiZ:
-    printf("round_pack: %llx_%llx\n", exp, sig);
+    // printf("round_pack: %llx_%llx\n", exp, sig);
     uZ.ui = uiZ;
     return uZ.f;
 

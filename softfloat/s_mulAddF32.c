@@ -123,7 +123,7 @@ float32_t
         --expProd;
         sigProd <<= 1;
     }
-    printf("expProd (c): %d\n", expProd);
+    // printf("expProd (c): %d\n", expProd);
     signZ = signProd;
     if ( ! expC ) {
         if ( ! sigC ) {
@@ -156,12 +156,12 @@ float32_t
             sigZ = softfloat_shortShiftRightJam64( sig64Z, 32 );
         }
         if ( sigZ < 0x40000000 ) {
-            printf("expZ: %d\n", expZ);
+            // printf("expZ: %d\n", expZ);
             --expZ;
             sigZ <<= 1;
             sig64Z <<= 1;
         }
-        printf("expZ: %d\n", expZ);
+        // printf("expZ: %d\n", expZ);
     } else {
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
@@ -199,7 +199,7 @@ float32_t
         }
     }
  roundPack:
-    printf("expZ (c): %d\n", expZ);
+    // printf("expZ (c): %d\n", expZ);
     return softfloat_roundPackToF32( signZ, expZ, sigZ, sig64Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/

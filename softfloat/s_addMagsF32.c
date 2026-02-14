@@ -42,7 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 float32_t softfloat_addMagsF32( uint_fast32_t uiA, uint_fast32_t uiB )
 {
-    printf("add_mags\n");
+    // printf("add_mags\n");
     int_fast16_t expA;
     uint_fast32_t sigA;
     uint_fast64_t sigA64;
@@ -131,7 +131,7 @@ float32_t softfloat_addMagsF32( uint_fast32_t uiA, uint_fast32_t uiB )
  propagateNaN:
     uiZ = softfloat_propagateNaNF32UI( uiA, uiB );
  uiZ:
-    printf("fallthrough\n");
+    // printf("fallthrough\n");
     uZ.ui = uiZ;
     return uZ.f;
 
