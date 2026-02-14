@@ -190,6 +190,13 @@ float32_t
         } else {
             sigZ = (uint_fast32_t) sig64Z<<shiftDist;
         }
+
+        shiftDist += 32;
+        if (shiftDist < 0) {
+            sig64Z = softfloat_shiftRightJam64(sigZ, -shiftDist);
+        } else {
+            sig64Z <<= shiftDist;
+        }
     }
  roundPack:
     printf("expZ (c): %d\n", expZ);
