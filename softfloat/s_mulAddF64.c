@@ -160,6 +160,7 @@ float64_t
         *--------------------------------------------------------------------*/
         if ( expDiff <= 0 ) {
             sigZ = (sigC + sig128Z.v64) | (sig128Z.v0 != 0);
+            sig128Z.v64 += sigC;
         } else {
             sig128Z =
                 softfloat_add128(

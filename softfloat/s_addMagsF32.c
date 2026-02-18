@@ -101,7 +101,7 @@ float32_t softfloat_addMagsF32( uint_fast32_t uiA, uint_fast32_t uiB )
             }
             expZ = expB;
             sigA += expA ? 0x20000000 : sigA;
-            sigA64 = softfloat_shiftRightJam64( (uint_fast64_t) sigA << 32, expDiff );
+            sigA64 = softfloat_shiftRightJam64( (uint_fast64_t) sigA << 32, -expDiff );
             sigB64 = (uint_fast64_t) sigB << 32;
             sigA = softfloat_shiftRightJam32( sigA, -expDiff );
         } else {

@@ -121,6 +121,7 @@ float64_t f64_mul( float64_t a, float64_t b )
     if ( sigZ < UINT64_C( 0x4000000000000000 ) ) {
         --expZ;
         sigZ <<= 1;
+        sig128Z = softfloat_shortShiftLeft128(sig128Z.v64, sig128Z.v0, 1);
     }
     return softfloat_roundPackToF64( signZ, expZ, sigZ, sig128Z );
     /*------------------------------------------------------------------------
