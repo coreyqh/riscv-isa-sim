@@ -43,7 +43,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 float32_t softfloat_subMagsF32( uint_fast32_t uiA, uint_fast32_t uiB )
 {
-    // printf("submags\n");
     int_fast16_t expA;
     uint_fast32_t sigA;
     int_fast16_t expB;
@@ -143,8 +142,6 @@ float32_t softfloat_subMagsF32( uint_fast32_t uiA, uint_fast32_t uiB )
  propagateNaN:
     uiZ = softfloat_propagateNaNF32UI( uiA, uiB );
  uiZ:
-    // TOOD: Handle uiZ fallthrough
-    // printf("fallthrough\n");
     uZ.ui = uiZ;
     return uZ.f;
 

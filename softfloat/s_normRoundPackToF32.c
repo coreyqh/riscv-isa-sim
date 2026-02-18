@@ -49,7 +49,6 @@ float32_t
     shiftDist = softfloat_countLeadingZeros32( sig ) - 1;
     exp -= shiftDist;
     if ( (7 <= shiftDist) && ((unsigned int) exp < 0xFD) ) {
-        // printf("norm_round_pack, exp: %llx, interm_exp: %llx\n", exp, softfloat_intermediateResult.exp);
         // softfloat_intermediateResult.sign     = sign;
         // softfloat_intermediateResult.exp      = sig ? exp : 0;
         // if (sig64 != 0) {
@@ -61,7 +60,6 @@ float32_t
         uZ.ui = packToF32UI( sign, sig ? exp : 0, sig<<(shiftDist - 7) );
         return uZ.f;
     } else {
-        // printf("that way? %llx, %llx\n", sig64, sig64 << shiftDist);
         return softfloat_roundPackToF32( sign, exp, sig<<shiftDist, sig64 << shiftDist );
     }
 

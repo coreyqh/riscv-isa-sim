@@ -52,11 +52,8 @@ bfloat16_t
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
-    // printf("rounding call\n");
     softfloat_intermediateResult.sign     = sign;
     softfloat_intermediateResult.exp      = exp + 1;
-    // printf("%x\n", exp);
-    // printf("%x\n", sig32);
     if (sig32 != 0) {
         softfloat_intermediateResult.sig64    = sig32 << 32;
         softfloat_intermediateResult.sig0     = 0;

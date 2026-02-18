@@ -59,7 +59,6 @@ float32_t i32_to_f32( int32_t a )
         return uZ.f;
     }
     absA = sign ? -(uint_fast32_t) a : (uint_fast32_t) a;
-    // printf("this way\n");
     return softfloat_normRoundPackToF32( sign, 0x9C, absA, (uint_fast64_t) absA << 32 );
 
 }

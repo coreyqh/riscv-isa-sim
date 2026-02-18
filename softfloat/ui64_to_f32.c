@@ -69,7 +69,6 @@ float32_t ui64_to_f32( uint64_t a )
                 : (uint_fast32_t) a<<shiftDist;
         
         shiftDist64 = shiftDist + 32;
-        // printf("%d\n", shiftDist64);
         sig64 =
             (shiftDist64 < 0)
                 ? softfloat_shortShiftRightJam64( a, -shiftDist64 )
