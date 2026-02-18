@@ -46,14 +46,17 @@ float64_t
 {
     int_fast16_t expA;
     uint_fast64_t sigA;
+    struct uint128 sigA128;
     int_fast16_t expB;
     uint_fast64_t sigB;
+    struct uint128 sigB128;
     int_fast16_t expDiff;
     uint_fast64_t uiZ;
     int_fast64_t sigDiff;
     int_fast8_t shiftDist;
     int_fast16_t expZ;
     uint_fast64_t sigZ;
+    struct uint128 sigZ128;
     union ui64_f64 uZ;
 
     /*------------------------------------------------------------------------
@@ -109,10 +112,12 @@ float64_t
                 goto uiZ;
             }
             sigA += expA ? UINT64_C( 0x4000000000000000 ) : sigA;
+            sigA128 = softfloat_shiftRightJam128( sigA, 0, -expDiff );
             sigA = softfloat_shiftRightJam64( sigA, -expDiff );
             sigB |= UINT64_C( 0x4000000000000000 );
             expZ = expB;
             sigZ = sigB - sigA;
+            sigZ128 = softfloat_sub128(sigB, 0, sigA128.v64, sigA128.v0);
         } else {
             /*----------------------------------------------------------------
             *----------------------------------------------------------------*/
@@ -122,12 +127,14 @@ float64_t
                 goto uiZ;
             }
             sigB += expB ? UINT64_C( 0x4000000000000000 ) : sigB;
+            sigB128 = softfloat_shiftRightJam128( sigB, 0, expDiff );
             sigB = softfloat_shiftRightJam64( sigB, expDiff );
             sigA |= UINT64_C( 0x4000000000000000 );
             expZ = expA;
             sigZ = sigA - sigB;
+            sigZ128 = softfloat_sub128(sigA, 0, sigB128.v64, sigB128.v0);
         }
-        return softfloat_normRoundPackToF64( signZ, expZ - 1, sigZ );
+        return softfloat_normRoundPackToF64( signZ, expZ - 1, sigZ, sigZ128 );
     }
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/

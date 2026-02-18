@@ -140,8 +140,8 @@ float8_t softfloat_roundPackToE5M2( bool, int_fast16_t, uint_fast16_t, bool );
 struct exp8_sig16 { int_fast8_t exp; uint_fast16_t sig; };
 struct exp8_sig16 softfloat_normSubnormalF16Sig( uint_fast16_t );
 
-float16_t softfloat_roundPackToF16( bool, int_fast16_t, uint_fast16_t );
-float16_t softfloat_normRoundPackToF16( bool, int_fast16_t, uint_fast16_t );
+float16_t softfloat_roundPackToF16( bool, int_fast16_t, uint_fast16_t, uint_fast32_t );
+float16_t softfloat_normRoundPackToF16( bool, int_fast16_t, uint_fast16_t, uint_fast32_t );
 
 float16_t softfloat_addMagsF16( uint_fast16_t, uint_fast16_t );
 float16_t softfloat_subMagsF16( uint_fast16_t, uint_fast16_t );
@@ -149,7 +149,7 @@ float16_t
  softfloat_mulAddF16(
      uint_fast16_t, uint_fast16_t, uint_fast16_t, uint_fast8_t );
 
-bfloat16_t softfloat_roundPackToBF16( bool, int_fast16_t, uint_fast16_t );
+bfloat16_t softfloat_roundPackToBF16( bool, int_fast16_t, uint_fast16_t, uint_fast32_t );
 /*----------------------------------------------------------------------------
 *----------------------------------------------------------------------------*/
 #define signF32UI( a ) ((bool) ((uint32_t) (a)>>31))
@@ -162,8 +162,9 @@ bfloat16_t softfloat_roundPackToBF16( bool, int_fast16_t, uint_fast16_t );
 struct exp16_sig32 { int_fast16_t exp; uint_fast32_t sig; };
 struct exp16_sig32 softfloat_normSubnormalF32Sig( uint_fast32_t );
 
-float32_t softfloat_roundPackToF32( bool, int_fast16_t, uint_fast32_t );
-float32_t softfloat_normRoundPackToF32( bool, int_fast16_t, uint_fast32_t );
+#define SIG64_LEADING_ONE 0x4000000000000000
+float32_t softfloat_roundPackToF32( bool, int_fast16_t, uint_fast32_t, uint_fast64_t );
+float32_t softfloat_normRoundPackToF32( bool, int_fast16_t, uint_fast32_t, uint_fast64_t );
 
 float32_t softfloat_addMagsF32( uint_fast32_t, uint_fast32_t );
 float32_t softfloat_subMagsF32( uint_fast32_t, uint_fast32_t );
@@ -183,8 +184,8 @@ float32_t
 struct exp16_sig64 { int_fast16_t exp; uint_fast64_t sig; };
 struct exp16_sig64 softfloat_normSubnormalF64Sig( uint_fast64_t );
 
-float64_t softfloat_roundPackToF64( bool, int_fast16_t, uint_fast64_t );
-float64_t softfloat_normRoundPackToF64( bool, int_fast16_t, uint_fast64_t );
+float64_t softfloat_roundPackToF64( bool, int_fast16_t, uint_fast64_t, struct uint128 );
+float64_t softfloat_normRoundPackToF64( bool, int_fast16_t, uint_fast64_t, struct uint128 );
 
 float64_t softfloat_addMagsF64( uint_fast64_t, uint_fast64_t, bool );
 float64_t softfloat_subMagsF64( uint_fast64_t, uint_fast64_t, bool );

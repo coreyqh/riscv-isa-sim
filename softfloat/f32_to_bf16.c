@@ -84,7 +84,7 @@ bfloat16_t f32_to_bf16( float32_t a )
     frac16 = frac>>9 | ((frac & 0x1FF) != 0);
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
-    return softfloat_roundPackToBF16( sign, exp - 1, frac16 | 0x4000 );
+    return softfloat_roundPackToBF16( sign, exp - 1, frac16 | 0x4000, (frac << 7) | 0x40000000 );
  uiZ:
     uZ.ui = uiZ;
     return uZ.f;

@@ -48,6 +48,7 @@ float16_t f128_to_f16( float128_t a )
     bool sign;
     int_fast32_t exp;
     uint_fast64_t frac64;
+    struct uint128 frac128;
     struct commonNaN commonNaN;
     uint_fast16_t uiZ, frac16;
     union ui16_f16 uZ;
@@ -62,7 +63,18 @@ float16_t f128_to_f16( float128_t a )
     frac64 = fracF128UI64( uiA64 ) | (uiA0 != 0);
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
+    // Collect significand now (we have a narrowing conversion to uint32 otherwise)
+    
+    frac128 = softfloat_shortShiftLeft128(fracF128UI64(uiA64), uiA0, 126 - 112);
+
+    softfloat_intermediateResult.sig64    = frac128.v64 | SIG64_LEADING_ONE;
+    softfloat_intermediateResult.sig0     = frac128.v0;
+    softfloat_intermediateResult.sigExtra = 0;
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
     if ( exp == 0x7FFF ) {
+        softfloat_intermediateResult.exp = 0x1f;
+        softfloat_intermediateResult.sign = sign;
         if ( frac64 ) {
             softfloat_f128UIToCommonNaN( uiA64, uiA0, &commonNaN );
             uiZ = softfloat_commonNaNToF16UI( &commonNaN );
@@ -75,6 +87,8 @@ float16_t f128_to_f16( float128_t a )
     *------------------------------------------------------------------------*/
     frac16 = softfloat_shortShiftRightJam64( frac64, 34 );
     if ( ! (exp | frac16) ) {
+        softfloat_intermediateResult.exp = 0;
+        softfloat_intermediateResult.sign = sign;
         uiZ = packToF16UI( sign, 0, 0 );
         goto uiZ;
     }
@@ -84,7 +98,7 @@ float16_t f128_to_f16( float128_t a )
     if ( sizeof (int_fast16_t) < sizeof (int_fast32_t) ) {
         if ( exp < -0x40 ) exp = -0x40;
     }
-    return softfloat_roundPackToF16( sign, exp, frac16 | 0x4000 );
+    return softfloat_roundPackToF16( sign, exp, frac16 | 0x4000, 0 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  uiZ:

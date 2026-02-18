@@ -154,7 +154,7 @@ float16_t f16_rem( float16_t a, float16_t b )
         signRem = ! signRem;
         rem = -rem;
     }
-    return softfloat_normRoundPackToF16( signRem, expB, rem );
+    return softfloat_normRoundPackToF16( signRem, expB, rem, rem << 16 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

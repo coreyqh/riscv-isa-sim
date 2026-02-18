@@ -147,7 +147,7 @@ float16_t softfloat_subMagsF16( uint_fast16_t uiA, uint_fast16_t uiB )
                 goto pack;
             }
         }
-        return softfloat_roundPackToF16( signZ, expZ, sigZ );
+        return softfloat_roundPackToF16( signZ, expZ, sigZ, sig32Z );
     }
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/

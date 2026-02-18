@@ -87,6 +87,7 @@ float16_t softfloat_addMagsF16( uint_fast16_t uiA, uint_fast16_t uiB )
             goto pack;
         }
         sigZ <<= 3;
+        sig32Z = sigZ << 16;
     } else {
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
@@ -141,7 +142,7 @@ float16_t softfloat_addMagsF16( uint_fast16_t uiA, uint_fast16_t uiB )
             }
         }
     }
-    return softfloat_roundPackToF16( signZ, expZ, sigZ );
+    return softfloat_roundPackToF16( signZ, expZ, sigZ, sig32Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:
@@ -150,6 +151,17 @@ float16_t softfloat_addMagsF16( uint_fast16_t uiA, uint_fast16_t uiB )
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  addEpsilon:
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
+    // This is rounding. Why they do it here, who knows? But we collect anyways
+    softfloat_intermediateResult.sign     = signZ;
+    softfloat_intermediateResult.exp      = expZ + 1;
+    softfloat_intermediateResult.sig64    = ((uint64_t)sig32Z) << 32ULL;
+    softfloat_intermediateResult.sig0     = 0;
+    softfloat_intermediateResult.sigExtra = 0;
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
+
     roundingMode = softfloat_roundingMode;
     if ( roundingMode != softfloat_round_near_even ) {
         if (

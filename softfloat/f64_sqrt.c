@@ -55,6 +55,7 @@ float64_t f64_sqrt( float64_t a )
     uint32_t q;
     uint_fast64_t sigZ, shiftedSigZ;
     union ui64_f64 uZ;
+    struct uint128 sig128Z;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
@@ -119,7 +120,9 @@ float64_t f64_sqrt( float64_t a )
             if ( rem ) sigZ |= 1;
         }
     }
-    return softfloat_roundPackToF64( 0, expZ, sigZ );
+    sig128Z.v64 = sigZ;
+    sig128Z.v0 = 0;
+    return softfloat_roundPackToF64( 0, expZ, sigZ, sig128Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  invalid:

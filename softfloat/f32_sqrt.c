@@ -107,7 +107,7 @@ float32_t f32_sqrt( float32_t a )
             if ( negRem ) --sigZ;
         }
     }
-    return softfloat_roundPackToF32( 0, expZ, sigZ );
+    return softfloat_roundPackToF32( 0, expZ, sigZ, (uint64_t) sigZ << 32 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  invalid:

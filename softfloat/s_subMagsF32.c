@@ -54,6 +54,7 @@ float32_t softfloat_subMagsF32( uint_fast32_t uiA, uint_fast32_t uiB )
     int_fast8_t shiftDist;
     int_fast16_t expZ;
     uint_fast32_t sigX, sigY;
+    uint_fast64_t sigX64, sigY64;
     union ui32_f32 uZ;
 
     /*------------------------------------------------------------------------
@@ -126,9 +127,14 @@ float32_t softfloat_subMagsF32( uint_fast32_t uiA, uint_fast32_t uiB )
             sigX = sigA | 0x40000000;
             sigY = sigB + (expB ? 0x40000000 : sigB);
         }
+        sigX64 = (uint_fast64_t)sigX << 32;
+        sigY64 = (uint_fast64_t)sigY << 32;
         return
             softfloat_normRoundPackToF32(
-                signZ, expZ, sigX - softfloat_shiftRightJam32( sigY, expDiff )
+                signZ,
+                expZ,
+                sigX - softfloat_shiftRightJam32( sigY, expDiff ),
+                sigX64 - softfloat_shiftRightJam64( sigY64, expDiff )
             );
     }
     /*------------------------------------------------------------------------

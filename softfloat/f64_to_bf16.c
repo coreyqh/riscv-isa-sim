@@ -61,7 +61,21 @@ bfloat16_t f64_to_bf16( float64_t a )
     frac = fracF64UI( uiA );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
+
+    softfloat_clearIntermResults();
+
+    // Collect significand now (we have a narrowing conversion to uint32 otherwise)
+    softfloat_intermediateResult.sig64    = (((uint64_t)frac) << (62 - 52));
+    if (exp != 0) {
+        softfloat_intermediateResult.sig64 |= SIG64_LEADING_ONE;
+    }
+    softfloat_intermediateResult.sig0     = 0;
+    softfloat_intermediateResult.sigExtra = 0;
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
     if ( exp == 0x7FF ) {
+        softfloat_intermediateResult.sign = sign;
+        softfloat_intermediateResult.exp = 0xff;
         if ( frac ) {
             softfloat_f64UIToCommonNaN( uiA, &commonNaN );
             uiZ = softfloat_commonNaNToBF16UI( &commonNaN );
@@ -74,12 +88,14 @@ bfloat16_t f64_to_bf16( float64_t a )
     *------------------------------------------------------------------------*/
     frac16 = softfloat_shortShiftRightJam64( frac, 38 );
     if ( ! (exp | frac16) ) {
+        softfloat_intermediateResult.sign = sign;
+        softfloat_intermediateResult.exp = 0;
         uiZ = packToBF16UI( sign, 0, 0 );
         goto uiZ;
     }
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
-    return softfloat_roundPackToBF16( sign, exp - 0x381, frac16 | 0x4000 );
+    return softfloat_roundPackToBF16( sign, exp - 0x381, frac16 | 0x4000, 0 ); 
  uiZ:
     uZ.ui = uiZ;
     return uZ.f;

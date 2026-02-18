@@ -122,7 +122,7 @@ float16_t f16_sqrt( float16_t a )
             if ( negRem ) --sigZ;
         }
     }
-    return softfloat_roundPackToF16( 0, expZ, sigZ );
+    return softfloat_roundPackToF16( 0, expZ, sigZ, sigZ << 16 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  invalid:

@@ -45,6 +45,7 @@ float64_t i64_to_f64( int64_t a )
     bool sign;
     union ui64_f64 uZ;
     uint_fast64_t absA;
+    struct uint128 Z128;
 
     sign = (a < 0);
     if ( ! (a & UINT64_C( 0x7FFFFFFFFFFFFFFF )) ) {
@@ -52,7 +53,9 @@ float64_t i64_to_f64( int64_t a )
         return uZ.f;
     }
     absA = sign ? -(uint_fast64_t) a : (uint_fast64_t) a;
-    return softfloat_normRoundPackToF64( sign, 0x43C, absA );
+    Z128.v64 = absA;
+    Z128.v0 = 0;
+    return softfloat_normRoundPackToF64( sign, 0x43C, absA, Z128 );
 
 }
 

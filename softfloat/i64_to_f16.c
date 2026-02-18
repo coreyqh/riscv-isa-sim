@@ -45,8 +45,10 @@ float16_t i64_to_f16( int64_t a )
     bool sign;
     uint_fast64_t absA;
     int_fast8_t shiftDist;
+    int_fast8_t shiftDist64;
     union ui16_f16 u;
     uint_fast16_t sig;
+    uint_fast64_t sig64;
 
     sign = (a < 0);
     absA = sign ? -(uint_fast64_t) a : (uint_fast64_t) a;
@@ -63,7 +65,18 @@ float16_t i64_to_f16( int64_t a )
             (shiftDist < 0)
                 ? softfloat_shortShiftRightJam64( absA, -shiftDist )
                 : (uint_fast16_t) absA<<shiftDist;
-        return softfloat_roundPackToF16( sign, 0x1C - shiftDist, sig );
+
+        // We lose information if we pass it as sig32
+        shiftDist64 = shiftDist + 48;
+        sig64 =
+            (shiftDist64 < 0)
+                ? softfloat_shortShiftRightJam64( absA, -shiftDist64 )
+                : (uint_fast16_t) absA<<shiftDist64;
+        softfloat_intermediateResult.sig64 = sig64;
+        softfloat_intermediateResult.sig0 = 0;
+        softfloat_intermediateResult.sigExtra = 0;
+
+        return softfloat_roundPackToF16( sign, 0x1C - shiftDist, sig, 0 );
     }
 
 }
