@@ -102,6 +102,8 @@ float16_t softfloat_addMagsF16( uint_fast16_t uiA, uint_fast16_t uiB )
             }
             if ( expDiff <= -13 ) {
                 uiZ = packToF16UI( signZ, expB, sigB );
+                expZ = expB;
+                sig32Z = ((sigB | 0x0400) << (30 - 10)) + softfloat_shiftRightJam32((sigA | 0x400) << (30 - 10), -expDiff);
                 if ( expA | sigA ) goto addEpsilon;
                 goto uiZ;
             }
@@ -118,6 +120,8 @@ float16_t softfloat_addMagsF16( uint_fast16_t uiA, uint_fast16_t uiB )
                 goto uiZ;
             }
             if ( 13 <= expDiff ) {
+                expZ = expA;
+                sig32Z = ((sigA | 0x0400) << (30 - 10)) + softfloat_shiftRightJam32((sigB | 0x400) << (30 - 10), expDiff);
                 if ( expB | sigB ) goto addEpsilon;
                 goto uiZ;
             }
