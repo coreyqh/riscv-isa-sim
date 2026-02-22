@@ -53,6 +53,16 @@ int_fast32_t
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
+    softfloat_intermediateResult.sign     = sign;
+    softfloat_intermediateResult.exp      = 1;
+    // We shift 12 bits into place, so 31 + 12 = 44, and we want msb in 62,
+    // if it is in 63 it gets thrown away, but this is an int not a float, so I think the
+    // msb should stay
+    softfloat_intermediateResult.sig64    = sig << (62 - 43);
+    softfloat_intermediateResult.sig0     = 0;
+    softfloat_intermediateResult.sigExtra = 0;
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
     roundNearEven = (roundingMode == softfloat_round_near_even);
     roundIncrement = 0x800;
     if ( ! roundNearEven && (roundingMode != softfloat_round_near_maxMag) ) {
