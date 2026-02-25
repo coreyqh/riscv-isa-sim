@@ -53,7 +53,20 @@ int_fast64_t
     bool roundNearEven, doIncrement;
     union { uint64_t ui; int64_t i; } uZ;
     int_fast64_t z;
+    struct uint128 shifted_sig;
 
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
+    softfloat_intermediateResult.sign     = sign;
+    softfloat_intermediateResult.exp      = 1;
+
+    // By default sig64 places the bit we want in bit 63, so shift it back by
+    // one, only to shift it 2 later. I'll admit this is a little silly
+    shifted_sig = softfloat_shiftRightJam128(sig, sigExtra, 1);
+
+    softfloat_intermediateResult.sig64    = shifted_sig.v64;
+    softfloat_intermediateResult.sig0     = shifted_sig.v0;
+    softfloat_intermediateResult.sigExtra = 0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     roundNearEven = (roundingMode == softfloat_round_near_even);
