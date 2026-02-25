@@ -128,6 +128,7 @@ float16_t
         if ( ! sigC ) {
             expZ = expProd - 1;
             sigZ = sigProd>>15 | ((sigProd & 0x7FFF) != 0);
+            sig32Z = sigProd;
             goto roundPack;
         }
         normExpSig = softfloat_normSubnormalF16Sig( sigC );
