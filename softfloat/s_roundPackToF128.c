@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include "platform.h"
 #include "internals.h"
+#include "primitives.h"
 #include "softfloat.h"
 
 float128_t
@@ -46,7 +47,8 @@ float128_t
      int_fast32_t exp,
      uint_fast64_t sig64,
      uint_fast64_t sig0,
-     uint_fast64_t sigExtra
+     uint_fast64_t sigExtra,
+     uint64_t *fullSig
  )
 {
     uint_fast8_t roundingMode;
@@ -54,15 +56,16 @@ float128_t
     struct uint128_extra sig128Extra;
     uint_fast64_t uiZ64, uiZ0;
     struct uint128 sig128;
-    union ui128_f128 uZ;\
+    union ui128_f128 uZ;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     softfloat_intermediateResult.sign     = sign;
     softfloat_intermediateResult.exp      = exp + 1;
-    softfloat_intermediateResult.sig64    = sig64;
-    softfloat_intermediateResult.sig0     = sig0;
-    softfloat_intermediateResult.sigExtra = sigExtra;
+    softfloat_intermediateResult.sig64    = fullSig[indexWord(4, 3)];
+    softfloat_intermediateResult.sig0     = fullSig[indexWord(4, 2)];
+    softfloat_intermediateResult.sigExtra64 = fullSig[indexWord(4, 1)];
+    softfloat_intermediateResult.sigExtra0 = fullSig[indexWord(4, 0)];
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/

@@ -69,7 +69,8 @@ float16_t f128_to_f16( float128_t a )
 
     softfloat_intermediateResult.sig64    = frac128.v64 | SIG64_LEADING_ONE;
     softfloat_intermediateResult.sig0     = frac128.v0;
-    softfloat_intermediateResult.sigExtra = 0;
+    softfloat_intermediateResult.sigExtra64 = 0;
+    softfloat_intermediateResult.sigExtra0 = 0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     if ( exp == 0x7FFF ) {

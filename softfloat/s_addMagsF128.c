@@ -59,6 +59,9 @@ float128_t
     uint_fast64_t sigZExtra;
     struct uint128_extra sig128Extra;
     union ui128_f128 uZ;
+    uint64_t sig256A[4];
+    uint64_t sig256B[4];
+    uint64_t sig256Z[4];
 
     expA = expF128UI64( uiA64 );
     sigA.v64 = fracF128UI64( uiA64 );
@@ -66,6 +69,17 @@ float128_t
     expB = expF128UI64( uiB64 );
     sigB.v64 = fracF128UI64( uiB64 );
     sigB.v0  = uiB0;
+
+    sig256A[indexWord(4, 3)] = sigA.v64;
+    sig256A[indexWord(4, 2)] = sigA.v0;
+    sig256A[indexWord(4, 1)] = 0;
+    sig256A[indexWord(4, 0)] = 0;
+
+    sig256B[indexWord(4, 3)] = sigB.v64;
+    sig256B[indexWord(4, 2)] = sigB.v0;
+    sig256B[indexWord(4, 1)] = 0;
+    sig256B[indexWord(4, 0)] = 0;
+
     expDiff = expA - expB;
     if ( ! expDiff ) {
         if ( expA == 0x7FFF ) {
@@ -75,6 +89,7 @@ float128_t
             goto uiZ;
         }
         sigZ = softfloat_add128( sigA.v64, sigA.v0, sigB.v64, sigB.v0 );
+        softfloat_add256M(sig256A, sig256B, sig256Z);
         if ( ! expA ) {
             uiZ.v64 = packToF128UI64( signZ, 0, sigZ.v64 );
             uiZ.v0  = sigZ.v0;
@@ -82,6 +97,7 @@ float128_t
         }
         expZ = expA;
         sigZ.v64 |= UINT64_C( 0x0002000000000000 );
+        sig256Z[indexWord(4, 3)] |= UINT64_C( 0x0002000000000000 );
         sigZExtra = 0;
         goto shiftRight1;
     }
@@ -95,6 +111,7 @@ float128_t
         expZ = expB;
         if ( expA ) {
             sigA.v64 |= UINT64_C( 0x0001000000000000 );
+            sig256A[indexWord(4, 3)] |= UINT64_C( 0x0002000000000000 );
         } else {
             ++expDiff;
             sigZExtra = 0;
@@ -104,6 +121,7 @@ float128_t
             softfloat_shiftRightJam128Extra( sigA.v64, sigA.v0, 0, -expDiff );
         sigA = sig128Extra.v;
         sigZExtra = sig128Extra.extra;
+        softfloat_shiftRightJam256M(sig256A, -expDiff, sig256A);
     } else {
         if ( expA == 0x7FFF ) {
             if ( sigA.v64 | sigA.v0 ) goto propagateNaN;
@@ -114,6 +132,7 @@ float128_t
         expZ = expA;
         if ( expB ) {
             sigB.v64 |= UINT64_C( 0x0001000000000000 );
+            sig256B[indexWord(4, 3)] |= UINT64_C( 0x0002000000000000 );
         } else {
             --expDiff;
             sigZExtra = 0;
@@ -123,6 +142,7 @@ float128_t
             softfloat_shiftRightJam128Extra( sigB.v64, sigB.v0, 0, expDiff );
         sigB = sig128Extra.v;
         sigZExtra = sig128Extra.extra;
+        softfloat_shiftRightJam256M(sig256B, expDiff, sig256B);
     }
  newlyAligned:
     sigZ =
@@ -132,6 +152,7 @@ float128_t
             sigB.v64,
             sigB.v0
         );
+    softfloat_add256M(sig256A, sig256B, sig256Z);
     --expZ;
     if ( sigZ.v64 < UINT64_C( 0x0002000000000000 ) ) goto roundAndPack;
     ++expZ;
@@ -141,9 +162,11 @@ float128_t
             sigZ.v64, sigZ.v0, sigZExtra, 1 );
     sigZ = sig128Extra.v;
     sigZExtra = sig128Extra.extra;
+    softfloat_shiftRightJam256M(sig256Z, 1, sig256Z);
  roundAndPack:
+
     return
-        softfloat_roundPackToF128( signZ, expZ, sigZ.v64, sigZ.v0, sigZExtra );
+        softfloat_roundPackToF128( signZ, expZ, sigZ.v64, sigZ.v0, sigZExtra, sig256Z );
  propagateNaN:
     uiZ = softfloat_propagateNaNF128UI( uiA64, uiA0, uiB64, uiB0 );
  uiZ:

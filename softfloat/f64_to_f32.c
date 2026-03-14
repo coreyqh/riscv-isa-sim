@@ -64,7 +64,8 @@ float32_t f64_to_f32( float64_t a )
     // Collect significand now
     softfloat_intermediateResult.sig64    = (frac << (32 - 22)) | 0x4000000000000000;
     softfloat_intermediateResult.sig0     = 0;
-    softfloat_intermediateResult.sigExtra = 0;
+    softfloat_intermediateResult.sigExtra64 = 0;
+    softfloat_intermediateResult.sigExtra0 = 0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     if ( exp == 0x7FF ) {

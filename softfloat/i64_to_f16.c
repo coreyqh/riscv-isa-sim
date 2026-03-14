@@ -74,7 +74,8 @@ float16_t i64_to_f16( int64_t a )
                 : (uint_fast16_t) absA<<shiftDist64;
         softfloat_intermediateResult.sig64 = sig64;
         softfloat_intermediateResult.sig0 = 0;
-        softfloat_intermediateResult.sigExtra = 0;
+        softfloat_intermediateResult.sigExtra64 = 0;
+        softfloat_intermediateResult.sigExtra0 = 0;
 
         return softfloat_roundPackToF16( sign, 0x1C - shiftDist, sig, 0 );
     }

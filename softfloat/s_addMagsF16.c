@@ -162,7 +162,8 @@ float16_t softfloat_addMagsF16( uint_fast16_t uiA, uint_fast16_t uiB )
     softfloat_intermediateResult.exp      = expZ + 1;
     softfloat_intermediateResult.sig64    = ((uint64_t)sig32Z) << 32ULL;
     softfloat_intermediateResult.sig0     = 0;
-    softfloat_intermediateResult.sigExtra = 0;
+    softfloat_intermediateResult.sigExtra64 = 0;
+    softfloat_intermediateResult.sigExtra0 = 0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
 

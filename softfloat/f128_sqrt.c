@@ -186,7 +186,14 @@ float128_t f128_sqrt( float128_t a )
             }
         }
     }
-    return softfloat_roundPackToF128( 0, expZ, sigZ.v64, sigZ.v0, sigZExtra );
+
+    uint64_t pre_rounding[4];
+    pre_rounding[indexWord(4, 3)] = sigZ.v64;
+    pre_rounding[indexWord(4, 2)] = sigZ.v0;
+    pre_rounding[indexWord(4, 1)] = sigZExtra;
+    pre_rounding[indexWord(4, 0)] = 0;
+
+    return softfloat_roundPackToF128( 0, expZ, sigZ.v64, sigZ.v0, sigZExtra, pre_rounding );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  invalid:

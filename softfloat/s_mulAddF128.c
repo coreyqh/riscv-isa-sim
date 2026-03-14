@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "internals.h"
 #include "specialize.h"
 #include "softfloat.h"
+#include <stdio.h>
 
 float128_t
  softfloat_mulAddF128(
@@ -166,19 +167,21 @@ float128_t
             if ( shiftDist ) {
                 sigZ =
                     softfloat_shiftRightJam128( sigZ.v64, sigZ.v0, shiftDist );
+                softfloat_shiftRightJam256M(sig256Z, shiftDist, sig256Z);
             }
         } else {
             if ( ! shiftDist ) {
+                // Effectively a shortShift to the right by 1
                 x128 =
                     softfloat_shortShiftRight128(
                         sig256Z[indexWord( 4, 1 )], sig256Z[indexWord( 4, 0 )],
                         1
                     );
-                sig256Z[indexWord( 4, 1 )] = (sigZ.v0<<63) | x128.v64;
                 sig256Z[indexWord( 4, 0 )] = x128.v0;
+                sig256Z[indexWord( 4, 1 )] = (sigZ.v0<<63) | x128.v64;
                 sigZ = softfloat_shortShiftRight128( sigZ.v64, sigZ.v0, 1 );
-                sig256Z[indexWord( 4, 3 )] = sigZ.v64;
                 sig256Z[indexWord( 4, 2 )] = sigZ.v0;
+                sig256Z[indexWord( 4, 3 )] = sigZ.v64;
             }
         }
     } else {
@@ -202,10 +205,18 @@ float128_t
         *--------------------------------------------------------------------*/
         if ( expDiff <= 0 ) {
             sigZ = softfloat_add128( sigC.v64, sigC.v0, sigZ.v64, sigZ.v0 );
+
+            sig256C[indexWord( 4, 3 )] = sigC.v64;
+            sig256C[indexWord( 4, 2 )] = sigC.v0;
+            sig256C[indexWord( 4, 1 )] = 0;
+            sig256C[indexWord( 4, 0 )] = 0;
+            softfloat_add256M(sig256Z, sig256C, sig256Z);
         } else {
             softfloat_add256M( sig256Z, sig256C, sig256Z );
             sigZ.v64 = sig256Z[indexWord( 4, 3 )];
             sigZ.v0  = sig256Z[indexWord( 4, 2 )];
+
+            // printf("sig256Z: %016lx|%016lx|%016lx|%016lx\n", sig256Z[indexWord( 4, 3 )], sig256Z[indexWord( 4, 2 )], sig256Z[indexWord( 4, 1 )], sig256Z[indexWord( 4, 0 )]);
         }
         if ( sigZ.v64 & UINT64_C( 0x0200000000000000 ) ) {
             ++expZ;
@@ -221,6 +232,14 @@ float128_t
                     softfloat_sub128( sigC.v64, sigC.v0, sigZ.v64, sigZ.v0 );
                 sigZExtra =
                     sig256Z[indexWord( 4, 1 )] | sig256Z[indexWord( 4, 0 )];
+                
+                
+                sig256C[indexWord( 4, 3 )] = sigC.v64;
+                sig256C[indexWord( 4, 2 )] = sigC.v0;
+                sig256C[indexWord( 4, 1 )] = 0;
+                sig256C[indexWord( 4, 0 )] = 0;
+                softfloat_sub256M(sig256C, sig256Z, sig256Z);
+
                 if ( sigZExtra ) {
                     sigZ = softfloat_sub128( sigZ.v64, sigZ.v0, 0, 1 );
                 }
@@ -237,6 +256,7 @@ float128_t
                 softfloat_sub256M( sig256C, sig256Z, sig256Z );
             }
         } else if ( ! expDiff ) {
+            // No changes needed for this if
             sigZ = softfloat_sub128( sigZ.v64, sigZ.v0, sigC.v64, sigC.v0 );
             if (
                 ! (sigZ.v64 | sigZ.v0) && ! sig256Z[indexWord( 4, 1 )]
@@ -264,6 +284,8 @@ float128_t
         }
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
+        // Always jumps to something past the sigZ label, so sig256Z things can be changed
+
         sigZ.v64  = sig256Z[indexWord( 4, 3 )];
         sigZ.v0   = sig256Z[indexWord( 4, 2 )];
         sigZExtra = sig256Z[indexWord( 4, 1 )];
@@ -275,15 +297,29 @@ float128_t
             sigZ.v64  = sigZ.v0;
             sigZ.v0   = sigZExtra;
             sigZExtra = sig256Z0;
+
+            sig256Z[indexWord(4, 3)] = sig256Z[indexWord(4, 2)];
+            sig256Z[indexWord(4, 2)] = sig256Z[indexWord(4, 1)];
+            sig256Z[indexWord(4, 1)] = sig256Z[indexWord(4, 0)];
+            sig256Z[indexWord(4, 0)] = 0;
+
             if ( ! sigZ.v64 ) {
                 expZ -= 64;
                 sigZ.v64  = sigZ.v0;
                 sigZ.v0   = sigZExtra;
                 sigZExtra = 0;
+
+                sig256Z[indexWord(4, 3)] = sig256Z[indexWord(4, 2)];
+                sig256Z[indexWord(4, 2)] = sig256Z[indexWord(4, 1)];
+                sig256Z[indexWord(4, 1)] = 0;
+
                 if ( ! sigZ.v64 ) {
                     expZ -= 64;
                     sigZ.v64 = sigZ.v0;
                     sigZ.v0  = 0;
+
+                    sig256Z[indexWord(4, 3)] = sig256Z[indexWord(4, 2)];
+                    sig256Z[indexWord(4, 2)] = 0;
                 }
             }
         }
@@ -297,18 +333,31 @@ float128_t
             x128 = softfloat_shortShiftLeft128( 0, sigZExtra, shiftDist );
             sigZ.v0 |= x128.v64;
             sigZExtra = x128.v0;
+
+            // Renormalization Shift
+            struct uint128 temp0 = softfloat_shortShiftLeft128(sig256Z[indexWord(4, 3)], sig256Z[indexWord(4, 2)], shiftDist);
+            struct uint128 temp1 = softfloat_shortShiftLeft128(0, sig256Z[indexWord(4, 1)], shiftDist);
+            struct uint128 temp2 = softfloat_shortShiftLeft128(0, sig256Z[indexWord(4, 0)], shiftDist);
+
+            sig256Z[indexWord(4, 3)] = temp0.v64;
+            sig256Z[indexWord(4, 2)] = temp0.v0 | temp1.v64;
+            sig256Z[indexWord(4, 1)] = temp1.v0 | temp2.v64;
+            sig256Z[indexWord(4, 0)] = temp2.v0;
         }
         goto roundPack;
     }
  sigZ:
+    // sigZExtra = sig256Z[indexWord( 4, 1 )] | (sig256Z[indexWord( 4, 0 )] != 0);
     sigZExtra = sig256Z[indexWord( 4, 1 )] | sig256Z[indexWord( 4, 0 )];
  shiftRightRoundPack:
+    // sigZExtra = (uint64_t) (sigZ.v0<<(64 - shiftDist)) | (sigZExtra >> shiftDist) | (sigZExtra << (64 - shiftDist) != 0);
     sigZExtra = (uint64_t) (sigZ.v0<<(64 - shiftDist)) | (sigZExtra != 0);
     sigZ = softfloat_shortShiftRight128( sigZ.v64, sigZ.v0, shiftDist );
+    softfloat_shiftRightJam256M(sig256Z, shiftDist, sig256Z);
  roundPack:
     return
         softfloat_roundPackToF128(
-            signZ, expZ - 1, sigZ.v64, sigZ.v0, sigZExtra );
+            signZ, expZ - 1, sigZ.v64, sigZ.v0, sigZExtra, sig256Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN_ABC:

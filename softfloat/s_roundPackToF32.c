@@ -58,7 +58,8 @@ float32_t
     if (sig64 != 0) {
         softfloat_intermediateResult.sig64    = ((uint64_t)sig64);
         softfloat_intermediateResult.sig0     = 0;
-        softfloat_intermediateResult.sigExtra = 0;
+        softfloat_intermediateResult.sigExtra64 = 0;
+        softfloat_intermediateResult.sigExtra0 = 0;
     }
 
     /*------------------------------------------------------------------------

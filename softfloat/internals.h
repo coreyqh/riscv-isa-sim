@@ -260,10 +260,10 @@ struct exp32_sig128
 
 float128_t
  softfloat_roundPackToF128(
-     bool, int_fast32_t, uint_fast64_t, uint_fast64_t, uint_fast64_t );
+     bool, int_fast32_t, uint_fast64_t, uint_fast64_t, uint_fast64_t, uint64_t* );
 float128_t
  softfloat_normRoundPackToF128(
-     bool, int_fast32_t, uint_fast64_t, uint_fast64_t );
+     bool, int_fast32_t, uint_fast64_t, uint_fast64_t, uint64_t* );
 
 float128_t
  softfloat_addMagsF128(

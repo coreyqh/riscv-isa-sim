@@ -122,7 +122,16 @@ float128_t f128_mul( float128_t a, float128_t b )
         softfloat_add128(
             sig256Z[indexWord( 4, 3 )], sig256Z[indexWord( 4, 2 )],
             sigA.v64, sigA.v0
-        );
+        ); // We do this because we never put a leading one on B
+    
+
+    uint64_t sig256A[4];
+    sig256A[indexWord(4, 3)] = sigA.v64;
+    sig256A[indexWord(4, 2)] = sigA.v0;
+    sig256A[indexWord(4, 1)] = 0;
+    sig256A[indexWord(4, 0)] = 0;
+    softfloat_add256M(sig256Z, sig256A, sig256Z);
+
     if ( UINT64_C( 0x0002000000000000 ) <= sigZ.v64 ) {
         ++expZ;
         sig128Extra =
@@ -130,9 +139,12 @@ float128_t f128_mul( float128_t a, float128_t b )
                 sigZ.v64, sigZ.v0, sigZExtra, 1 );
         sigZ = sig128Extra.v;
         sigZExtra = sig128Extra.extra;
+
+        softfloat_shiftRightJam256M(sig256Z, 1, sig256Z);
     }
+
     return
-        softfloat_roundPackToF128( signZ, expZ, sigZ.v64, sigZ.v0, sigZExtra );
+        softfloat_roundPackToF128( signZ, expZ, sigZ.v64, sigZ.v0, sigZExtra, sig256Z );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

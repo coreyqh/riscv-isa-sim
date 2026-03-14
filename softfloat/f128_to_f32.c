@@ -67,7 +67,8 @@ float32_t f128_to_f32( float128_t a )
     harvested_sig = softfloat_shortShiftLeft128(fracF128UI64(uiA64), uiA0, 32 - 18);
     softfloat_intermediateResult.sig64    = harvested_sig.v64 | 0x4000000000000000;
     softfloat_intermediateResult.sig0     = harvested_sig.v0;
-    softfloat_intermediateResult.sigExtra = 0;
+    softfloat_intermediateResult.sigExtra64 = 0;
+    softfloat_intermediateResult.sigExtra0 = 0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     if ( exp == 0x7FFF ) {
