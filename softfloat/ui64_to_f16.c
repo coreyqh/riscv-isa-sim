@@ -68,7 +68,8 @@ float16_t ui64_to_f16( uint64_t a )
                 : (uint_fast16_t) a<<shiftDist64;
         softfloat_intermediateResult.sig64 = sig64;
         softfloat_intermediateResult.sig0 = 0;
-        softfloat_intermediateResult.sigExtra = 0;
+        softfloat_intermediateResult.sigExtra64 = 0;
+        softfloat_intermediateResult.sigExtra0 = 0;
 
         return softfloat_roundPackToF16( 0, 0x1C - shiftDist, sig, 0 );
     }

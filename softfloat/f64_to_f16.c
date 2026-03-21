@@ -64,7 +64,8 @@ float16_t f64_to_f16( float64_t a )
     // Collect significand now (we have a narrowing conversion to uint32 otherwise)
     softfloat_intermediateResult.sig64    = (((uint64_t)frac) << (62 - 52)) | SIG64_LEADING_ONE;
     softfloat_intermediateResult.sig0     = 0;
-    softfloat_intermediateResult.sigExtra = 0;
+    softfloat_intermediateResult.sigExtra64 = 0;
+    softfloat_intermediateResult.sigExtra0 = 0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     if ( exp == 0x7FF ) {

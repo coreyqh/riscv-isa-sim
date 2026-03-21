@@ -166,8 +166,15 @@ float128_t f128_div( float128_t a, float128_t b )
             (uint_fast64_t) qs[2]<<19, ((uint_fast64_t) qs[0]<<25) + (q>>4),
             term.v64, term.v0
         );
+
+    uint64_t pre_rounding[4];
+    pre_rounding[indexWord(4, 3)] = sigZ.v64;
+    pre_rounding[indexWord(4, 2)] = sigZ.v0;
+    pre_rounding[indexWord(4, 1)] = sigZExtra;
+    pre_rounding[indexWord(4, 0)] = 0;
+
     return
-        softfloat_roundPackToF128( signZ, expZ, sigZ.v64, sigZ.v0, sigZExtra );
+        softfloat_roundPackToF128( signZ, expZ, sigZ.v64, sigZ.v0, sigZExtra, pre_rounding );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

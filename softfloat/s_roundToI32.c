@@ -60,7 +60,8 @@ int_fast32_t
     // msb should stay
     softfloat_intermediateResult.sig64    = sig << (62 - 43);
     softfloat_intermediateResult.sig0     = 0;
-    softfloat_intermediateResult.sigExtra = 0;
+    softfloat_intermediateResult.sigExtra64 = 0;
+    softfloat_intermediateResult.sigExtra0 = 0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     roundNearEven = (roundingMode == softfloat_round_near_even);

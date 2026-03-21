@@ -54,7 +54,8 @@ float32_t ui64_to_f32( uint64_t a )
         softfloat_intermediateResult.exp      = a ? 0x95 - shiftDist + 1 : 0;
         softfloat_intermediateResult.sig64    = a ? (a << shiftDist << 32 << 7) : 0;
         softfloat_intermediateResult.sig0     = 0;
-        softfloat_intermediateResult.sigExtra = 0;
+        softfloat_intermediateResult.sigExtra64 = 0;
+        softfloat_intermediateResult.sigExtra0 = 0;
 
         u.ui =
             a ? packToF32UI(

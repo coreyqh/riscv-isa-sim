@@ -58,7 +58,8 @@ uint_fast32_t
     // msb should stay. Notice that this is one less of a shift than the signed version
     softfloat_intermediateResult.sig64    = sig << (62 - 44);
     softfloat_intermediateResult.sig0     = 0;
-    softfloat_intermediateResult.sigExtra = 0;
+    softfloat_intermediateResult.sigExtra64 = 0;
+    softfloat_intermediateResult.sigExtra0 = 0;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/

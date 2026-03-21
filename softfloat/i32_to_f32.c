@@ -53,7 +53,8 @@ float32_t i32_to_f32( int32_t a )
         softfloat_intermediateResult.exp      = sign ? 0x9E : 0;
         softfloat_intermediateResult.sig64    = sign ? SIG64_LEADING_ONE : 0;
         softfloat_intermediateResult.sig0     = 0;
-        softfloat_intermediateResult.sigExtra = 0;
+        softfloat_intermediateResult.sigExtra64 = 0;
+        softfloat_intermediateResult.sigExtra0 = 0;
 
         uZ.ui = sign ? packToF32UI( 1, 0x9E, 0 ) : 0;
         return uZ.f;

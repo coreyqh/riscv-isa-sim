@@ -170,7 +170,14 @@ float128_t f128_rem( float128_t a, float128_t b )
         signRem = ! signRem;
         rem = softfloat_sub128( 0, 0, rem.v64, rem.v0 );
     }
-    return softfloat_normRoundPackToF128( signRem, expB - 1, rem.v64, rem.v0 );
+
+    uint64_t pre_rounding[4];
+    pre_rounding[indexWord(4, 3)] = rem.v64;
+    pre_rounding[indexWord(4, 2)] = rem.v0;
+    pre_rounding[indexWord(4, 1)] = 0;
+    pre_rounding[indexWord(4, 0)] = 0;
+    
+    return softfloat_normRoundPackToF128( signRem, expB - 1, rem.v64, rem.v0, pre_rounding);
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

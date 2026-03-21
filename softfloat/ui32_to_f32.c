@@ -48,7 +48,8 @@ float32_t ui32_to_f32( uint32_t a )
         softfloat_intermediateResult.exp      = 0;
         softfloat_intermediateResult.sig64    = 0;
         softfloat_intermediateResult.sig0     = 0;
-        softfloat_intermediateResult.sigExtra = 0;
+        softfloat_intermediateResult.sigExtra64 = 0;
+        softfloat_intermediateResult.sigExtra0 = 0;
         
         uZ.ui = 0;
         return uZ.f;
