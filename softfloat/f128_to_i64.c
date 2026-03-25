@@ -50,7 +50,7 @@ int_fast64_t f128_to_i64( float128_t a, uint_fast8_t roundingMode, bool exact )
     uint_fast64_t sig64, sig0;
     int_fast32_t shiftDist;
     struct uint128 sig128;
-    struct uint64_extra sigExtra;
+    // struct uint64_extra sigExtra;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
@@ -85,9 +85,13 @@ int_fast64_t f128_to_i64( float128_t a, uint_fast8_t roundingMode, bool exact )
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
         if ( exp ) sig64 |= UINT64_C( 0x0001000000000000 );
-        sigExtra = softfloat_shiftRightJam64Extra( sig64, sig0, shiftDist );
-        sig64 = sigExtra.v;
-        sig0  = sigExtra.extra;
+        // printf("%ld\n", shiftDist);
+        // sigExtra = softfloat_shiftRightJam64Extra( sig64, sig0, shiftDist );
+        // sig64 = sigExtra.v;
+        // sig0  = sigExtra.extra;
+        sig128 = softfloat_shiftRightJam128( sig64, sig0, shiftDist );
+        sig64 = sig128.v64;
+        sig0 = sig128.v0;
     }
     return softfloat_roundToI64( sign, sig64, sig0, roundingMode, exact );
 
