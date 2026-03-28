@@ -119,6 +119,11 @@ float64_t
     sigA = (sigA | UINT64_C( 0x0010000000000000 ))<<10;
     sigB = (sigB | UINT64_C( 0x0010000000000000 ))<<10;
     sig128Z = softfloat_mul64To128( sigA, sigB );
+
+    // Extract SigProd
+    softfloat_intermediateResult.fmaPreAddition[indexWord(4, 0)] = sig128Z.v0;
+    softfloat_intermediateResult.fmaPreAddition[indexWord(4, 1)] = sig128Z.v64;
+
     if ( sig128Z.v64 < UINT64_C( 0x2000000000000000 ) ) {
         --expZ;
         sig128Z =

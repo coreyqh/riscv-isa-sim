@@ -62,7 +62,11 @@ bfloat16_t f64_to_bf16( float64_t a )
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
 
+    // If we had intermediate results from an f32 or f64 op beforehand, discard them,
+    // in the case of fma though, we want to preserve the pre_addition result
+    uint64_t fma_pre_addition = softfloat_intermediateResult.fmaPreAddition[indexWord(4, 0)];
     softfloat_clearIntermResults();
+    softfloat_intermediateResult.fmaPreAddition[indexWord(4, 0)] = fma_pre_addition;
 
     // Collect significand now (we have a narrowing conversion to uint32 otherwise)
     softfloat_intermediateResult.sig64    = (((uint64_t)frac) << (62 - 52));

@@ -119,6 +119,10 @@ float16_t
     sigA = (sigA | 0x0400)<<4;
     sigB = (sigB | 0x0400)<<4;
     sigProd = (uint_fast32_t) sigA * sigB;
+
+    // Extract SigProd
+    softfloat_intermediateResult.fmaPreAddition[indexWord(4, 0)] = sigProd;
+
     if ( sigProd < 0x20000000 ) {
         --expProd;
         sigProd <<= 1;
