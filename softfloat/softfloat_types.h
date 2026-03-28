@@ -102,7 +102,6 @@ typedef struct {
    int32_t  exp;
    uint64_t sig64;
    uint64_t sig0;
-   uint64_t sigExtra;
    uint64_t sigExtra64;
    uint64_t sigExtra0;
 
