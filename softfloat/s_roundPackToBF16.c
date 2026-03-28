@@ -57,7 +57,8 @@ bfloat16_t
     if (sig32 != 0) {
         softfloat_intermediateResult.sig64    = sig32 << 32;
         softfloat_intermediateResult.sig0     = 0;
-        softfloat_intermediateResult.sigExtra = 0;
+        softfloat_intermediateResult.sigExtra64 = 0;
+        softfloat_intermediateResult.sigExtra0 = 0;
     }
 
     /*------------------------------------------------------------------------

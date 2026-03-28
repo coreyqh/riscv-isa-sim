@@ -103,6 +103,8 @@ typedef struct {
    uint64_t sig64;
    uint64_t sig0;
    uint64_t sigExtra;
+   uint64_t sigExtra64;
+   uint64_t sigExtra0;
 
    uint64_t fmaPreAddition[4];
 } intermResult_t;

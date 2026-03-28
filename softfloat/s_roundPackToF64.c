@@ -57,7 +57,8 @@ float64_t
     if (sig128.v64 != 0) {
         softfloat_intermediateResult.sig64    = sig128.v64;
         softfloat_intermediateResult.sig0     = sig128.v0;
-        softfloat_intermediateResult.sigExtra = 0;
+        softfloat_intermediateResult.sigExtra64 = 0;
+        softfloat_intermediateResult.sigExtra0 = 0;
     }
 
     /*------------------------------------------------------------------------

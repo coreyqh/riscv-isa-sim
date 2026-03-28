@@ -74,7 +74,8 @@ bfloat16_t f64_to_bf16( float64_t a )
         softfloat_intermediateResult.sig64 |= SIG64_LEADING_ONE;
     }
     softfloat_intermediateResult.sig0     = 0;
-    softfloat_intermediateResult.sigExtra = 0;
+    softfloat_intermediateResult.sigExtra0 = 0;
+    softfloat_intermediateResult.sigExtra64 = 0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     if ( exp == 0x7FF ) {

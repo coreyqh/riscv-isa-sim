@@ -57,6 +57,9 @@ float128_t
     int_fast32_t expDiff, expZ;
     struct uint128 uiZ;
     union ui128_f128 uZ;
+    uint64_t sig256A[4];
+    uint64_t sig256B[4];
+    uint64_t sig256Z[4];
 
     expA = expF128UI64( uiA64 );
     sigA.v64 = fracF128UI64( uiA64 );
@@ -66,6 +69,17 @@ float128_t
     sigB.v0  = uiB0;
     sigA = softfloat_shortShiftLeft128( sigA.v64, sigA.v0, 4 );
     sigB = softfloat_shortShiftLeft128( sigB.v64, sigB.v0, 4 );
+
+    sig256A[indexWord(4, 3)] = sigA.v64;
+    sig256A[indexWord(4, 2)] = sigA.v0;
+    sig256A[indexWord(4, 1)] = 0;
+    sig256A[indexWord(4, 0)] = 0;
+
+    sig256B[indexWord(4, 3)] = sigB.v64;
+    sig256B[indexWord(4, 2)] = sigB.v0;
+    sig256B[indexWord(4, 1)] = 0;
+    sig256B[indexWord(4, 0)] = 0;
+    
     expDiff = expA - expB;
     if ( 0 < expDiff ) goto expABigger;
     if ( expDiff < 0 ) goto expBBigger;
@@ -96,17 +110,21 @@ float128_t
     }
     if ( expA ) {
         sigA.v64 |= UINT64_C( 0x0010000000000000 );
+        sig256A[indexWord(4, 3)] |= UINT64_C( 0x0010000000000000 );
     } else {
         ++expDiff;
         if ( ! expDiff ) goto newlyAlignedBBigger;
     }
     sigA = softfloat_shiftRightJam128( sigA.v64, sigA.v0, -expDiff );
+    softfloat_shiftRightJam256M( sig256A, -expDiff, sig256A );
  newlyAlignedBBigger:
     expZ = expB;
     sigB.v64 |= UINT64_C( 0x0010000000000000 );
+    sig256B[indexWord(4, 3)] |= UINT64_C( 0x0010000000000000 );
  bBigger:
     signZ = ! signZ;
     sigZ = softfloat_sub128( sigB.v64, sigB.v0, sigA.v64, sigA.v0 );
+    softfloat_sub256M(sig256B, sig256A, sig256Z);
     goto normRoundPack;
  expABigger:
     if ( expA == 0x7FFF ) {
@@ -117,18 +135,22 @@ float128_t
     }
     if ( expB ) {
         sigB.v64 |= UINT64_C( 0x0010000000000000 );
+        sig256B[indexWord(4, 3)] |= UINT64_C( 0x0010000000000000 );
     } else {
         --expDiff;
         if ( ! expDiff ) goto newlyAlignedABigger;
     }
     sigB = softfloat_shiftRightJam128( sigB.v64, sigB.v0, expDiff );
+    softfloat_shiftRightJam256M( sig256B, expDiff, sig256B );
  newlyAlignedABigger:
     expZ = expA;
     sigA.v64 |= UINT64_C( 0x0010000000000000 );
+    sig256A[indexWord(4, 3)] |= UINT64_C( 0x0010000000000000 );
  aBigger:
     sigZ = softfloat_sub128( sigA.v64, sigA.v0, sigB.v64, sigB.v0 );
+    softfloat_sub256M(sig256A, sig256B, sig256Z);
  normRoundPack:
-    return softfloat_normRoundPackToF128( signZ, expZ - 5, sigZ.v64, sigZ.v0 );
+    return softfloat_normRoundPackToF128( signZ, expZ - 5, sigZ.v64, sigZ.v0, sig256Z );
  propagateNaN:
     uiZ = softfloat_propagateNaNF128UI( uiA64, uiA0, uiB64, uiB0 );
  uiZ:

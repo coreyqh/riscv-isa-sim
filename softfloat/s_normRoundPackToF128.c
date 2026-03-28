@@ -38,10 +38,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include "platform.h"
 #include "internals.h"
+#include <stdio.h>
 
 float128_t
  softfloat_normRoundPackToF128(
-     bool sign, int_fast32_t exp, uint_fast64_t sig64, uint_fast64_t sig0 )
+     bool sign, int_fast32_t exp, uint_fast64_t sig64, uint_fast64_t sig0, uint64_t* full_sig )
 {
     int_fast8_t shiftDist;
     struct uint128 sig128;
@@ -61,6 +62,16 @@ float128_t
             sig128 = softfloat_shortShiftLeft128( sig64, sig0, shiftDist );
             sig64 = sig128.v64;
             sig0  = sig128.v0;
+
+            // Renormalization Shift
+            struct uint128 temp0 = softfloat_shortShiftLeft128(full_sig[indexWord(4, 3)], full_sig[indexWord(4, 2)], shiftDist);
+            struct uint128 temp1 = softfloat_shortShiftLeft128(0, full_sig[indexWord(4, 1)], shiftDist);
+            struct uint128 temp2 = softfloat_shortShiftLeft128(0, full_sig[indexWord(4, 0)], shiftDist);
+
+            full_sig[indexWord(4, 3)] = temp0.v64;
+            full_sig[indexWord(4, 2)] = temp0.v0 | temp1.v64;
+            full_sig[indexWord(4, 1)] = temp1.v0 | temp2.v64;
+            full_sig[indexWord(4, 0)] = temp2.v0;
         }
         if ( (uint32_t) exp < 0x7FFD ) {
             uZ.ui.v64 = packToF128UI64( sign, sig64 | sig0 ? exp : 0, sig64 );
@@ -74,8 +85,11 @@ float128_t
         sig64 = sig128Extra.v.v64;
         sig0  = sig128Extra.v.v0;
         sigExtra = sig128Extra.extra;
+
+        softfloat_shiftRightJam256M(full_sig, -shiftDist, full_sig);
     }
-    return softfloat_roundPackToF128( sign, exp, sig64, sig0, sigExtra );
+
+    return softfloat_roundPackToF128( sign, exp, sig64, sig0, sigExtra, full_sig);
 
 }
 

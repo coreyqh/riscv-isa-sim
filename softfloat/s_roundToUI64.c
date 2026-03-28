@@ -64,7 +64,8 @@ uint_fast64_t
 
     softfloat_intermediateResult.sig64    = shifted_sig.v64;
     softfloat_intermediateResult.sig0     = shifted_sig.v0;
-    softfloat_intermediateResult.sigExtra = 0;
+    softfloat_intermediateResult.sigExtra64 = 0;
+    softfloat_intermediateResult.sigExtra0 = 0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     roundNearEven = (roundingMode == softfloat_round_near_even);
