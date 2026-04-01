@@ -45,7 +45,7 @@ float32_t ui64_to_f32( uint64_t a )
     int_fast8_t shiftDist64;
     union ui32_f32 u;
     uint_fast32_t sig;
-    uint_fast64_t sig64;
+    struct uint128 sig128;
 
     shiftDist = softfloat_countLeadingZeros64( a ) - 40;
     if ( 0 <= shiftDist ) {
@@ -70,12 +70,19 @@ float32_t ui64_to_f32( uint64_t a )
                 : (uint_fast32_t) a<<shiftDist;
         
         shiftDist64 = shiftDist + 32;
-        sig64 =
-            (shiftDist64 < 0)
-                ? softfloat_shortShiftRightJam64( a, -shiftDist64 )
-                : (uint_fast64_t) a<<shiftDist64;
+        if (shiftDist64 < 0) {
+            sig128 = softfloat_shiftRightJam128(a, 0, -shiftDist64);
+        } else {
+            sig128.v64 = (uint64_t)a << shiftDist64;
+            sig128.v0 = 0;
+        }
 
-        return softfloat_roundPackToF32( 0, 0x9C - shiftDist, sig, sig64 );
+        softfloat_intermediateResult.sig64 = sig128.v64;
+        softfloat_intermediateResult.sig0 = sig128.v0;
+        softfloat_intermediateResult.sigExtra64 = 0;
+        softfloat_intermediateResult.sigExtra0 = 0;
+
+        return softfloat_roundPackToF32( 0, 0x9C - shiftDist, sig, 0 );
     }
 
 }

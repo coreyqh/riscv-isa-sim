@@ -79,7 +79,7 @@ float16_t f32_to_f16( float32_t a )
     }
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
-    return softfloat_roundPackToF16( sign, exp - 0x71, frac16 | 0x4000, (frac << 7) | 0x40000000 );
+    return softfloat_roundPackToF16( sign, exp - 0x71, frac16 | 0x4000, ((frac << 7) | 0x40000000) << 32 );
  uiZ:
     uZ.ui = uiZ;
     return uZ.f;

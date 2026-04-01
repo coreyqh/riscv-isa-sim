@@ -146,7 +146,7 @@ float16_t softfloat_addMagsF16( uint_fast16_t uiA, uint_fast16_t uiB )
             }
         }
     }
-    return softfloat_roundPackToF16( signZ, expZ, sigZ, sig32Z );
+    return softfloat_roundPackToF16( signZ, expZ, sigZ, (uint64_t)sig32Z << 32 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

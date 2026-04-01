@@ -202,7 +202,7 @@ float16_t
         }
     }
  roundPack:
-    return softfloat_roundPackToF16( signZ, expZ, sigZ, sig32Z );
+    return softfloat_roundPackToF16( signZ, expZ, sigZ, (uint64_t)sig32Z << 32 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN_ABC:

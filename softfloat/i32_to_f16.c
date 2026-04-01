@@ -73,7 +73,7 @@ float16_t i32_to_f16( int32_t a )
                 ? softfloat_shiftRightJam32(absA, -shiftDist32)
                 : (uint_fast32_t) absA << shiftDist32;
 
-        return softfloat_roundPackToF16( sign, 0x1C - shiftDist, sig, sig32 );
+        return softfloat_roundPackToF16( sign, 0x1C - shiftDist, sig, (uint64_t)sig32 << 32 );
     }
 
 }
