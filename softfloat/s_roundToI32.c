@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int_fast32_t
  softfloat_roundToI32(
-     bool sign, uint_fast64_t sig, uint_fast8_t roundingMode, bool exact )
+     bool sign, uint_fast64_t sig, uint_fast8_t roundingMode, bool exact, uint64_t *sig256 )
 {
     bool roundNearEven;
     uint_fast16_t roundIncrement, roundBits;
@@ -55,13 +55,20 @@ int_fast32_t
     *------------------------------------------------------------------------*/
     softfloat_intermediateResult.sign     = sign;
     softfloat_intermediateResult.exp      = 1;
-    // We shift 12 bits into place, so 31 + 12 = 44, and we want msb in 62,
+    // We shift 12 bits into place, so 31 + 12 = 43, and we want msb in 62,
     // if it is in 63 it gets thrown away, but this is an int not a float, so I think the
     // msb should stay
-    softfloat_intermediateResult.sig64    = sig << (62 - 43);
-    softfloat_intermediateResult.sig0     = 0;
-    softfloat_intermediateResult.sigExtra64 = 0;
-    softfloat_intermediateResult.sigExtra0 = 0;
+    uint16_t shift_dist = 62 - 43;
+
+    sig256[indexWord(4, 3)] = (sig256[indexWord(4, 3)] << shift_dist) | (sig256[indexWord(4, 2)] >> (64 - shift_dist));
+    sig256[indexWord(4, 2)] = (sig256[indexWord(4, 2)] << shift_dist) | (sig256[indexWord(4, 1)] >> (64 - shift_dist));
+    sig256[indexWord(4, 1)] = (sig256[indexWord(4, 1)] << shift_dist) | (sig256[indexWord(4, 0)] >> (64 - shift_dist));
+    sig256[indexWord(4, 0)] = (sig256[indexWord(4, 0)] << shift_dist);
+
+    softfloat_intermediateResult.sig64    = sig256[indexWord(4, 3)];
+    softfloat_intermediateResult.sig0     = sig256[indexWord(4, 2)];
+    softfloat_intermediateResult.sigExtra64 = sig256[indexWord(4, 1)];
+    softfloat_intermediateResult.sigExtra0 = sig256[indexWord(4, 0)];
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     roundNearEven = (roundingMode == softfloat_round_near_even);

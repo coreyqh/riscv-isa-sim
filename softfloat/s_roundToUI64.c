@@ -47,11 +47,11 @@ uint_fast64_t
      uint_fast64_t sig,
      uint_fast64_t sigExtra,
      uint_fast8_t roundingMode,
-     bool exact
+     bool exact,
+     uint_fast64_t* sig256
  )
 {
     bool roundNearEven, doIncrement;
-    struct uint128 shifted_sig;
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
@@ -60,12 +60,13 @@ uint_fast64_t
 
     // By default sig64 places the bit we want in bit 64, so shift it back by
     // two, only to shift it 2 later. I'll admit this is a little silly
-    shifted_sig = softfloat_shiftRightJam128(sig, sigExtra, 2);
+    uint16_t shift_dist = 2;
+    softfloat_shiftRightJam256M(sig256, shift_dist, sig256);
 
-    softfloat_intermediateResult.sig64    = shifted_sig.v64;
-    softfloat_intermediateResult.sig0     = shifted_sig.v0;
-    softfloat_intermediateResult.sigExtra64 = 0;
-    softfloat_intermediateResult.sigExtra0 = 0;
+    softfloat_intermediateResult.sig64    = sig256[indexWord(4, 3)];
+    softfloat_intermediateResult.sig0     = sig256[indexWord(4, 2)];
+    softfloat_intermediateResult.sigExtra64 = sig256[indexWord(4, 1)];
+    softfloat_intermediateResult.sigExtra0 = sig256[indexWord(4, 0)];
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     roundNearEven = (roundingMode == softfloat_round_near_even);

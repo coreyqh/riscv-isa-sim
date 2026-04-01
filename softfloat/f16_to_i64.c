@@ -50,6 +50,7 @@ int_fast64_t f16_to_i64( float16_t a, uint_fast8_t roundingMode, bool exact )
     uint_fast16_t frac;
     int_fast32_t sig32;
     int_fast8_t shiftDist;
+    uint64_t sig256[4];
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
@@ -69,6 +70,12 @@ int_fast64_t f16_to_i64( float16_t a, uint_fast8_t roundingMode, bool exact )
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     sig32 = frac;
+
+    sig256[indexWord(4, 3)] = sig32;
+    sig256[indexWord(4, 2)] = 0;
+    sig256[indexWord(4, 1)] = 0;
+    sig256[indexWord(4, 0)] = 0;
+
     if ( exp ) {
         sig32 |= 0x0400;
         shiftDist = exp - 0x19;
@@ -77,11 +84,14 @@ int_fast64_t f16_to_i64( float16_t a, uint_fast8_t roundingMode, bool exact )
             return sign ? -sig32 : sig32;
         }
         shiftDist = exp - 0x0D;
-        if ( 0 < shiftDist ) sig32 <<= shiftDist;
+        if ( 0 < shiftDist ) {
+            sig32 <<= shiftDist;
+            sig256[indexWord(4, 3)] <<= shiftDist;
+        }
     }
     return
         softfloat_roundToI32(
-            sign, (uint_fast32_t) sig32, roundingMode, exact );
+            sign, (uint_fast32_t) sig32, roundingMode, exact, sig256 );
 
 }
 

@@ -51,6 +51,7 @@ int_fast64_t f128_to_i64( float128_t a, uint_fast8_t roundingMode, bool exact )
     int_fast32_t shiftDist;
     struct uint128 sig128;
     struct uint64_extra sigExtra;
+    uint64_t sig256[4];
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
@@ -63,6 +64,10 @@ int_fast64_t f128_to_i64( float128_t a, uint_fast8_t roundingMode, bool exact )
     sig0  = uiA0;
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
+    sig256[indexWord(4, 3)] = sig64;
+    sig256[indexWord(4, 2)] = sig0;
+    sig256[indexWord(4, 1)] = 0;
+    sig256[indexWord(4, 0)] = 0;
     shiftDist = 0x402F - exp;
     if ( shiftDist <= 0 ) {
         /*--------------------------------------------------------------------
@@ -80,6 +85,8 @@ int_fast64_t f128_to_i64( float128_t a, uint_fast8_t roundingMode, bool exact )
             sig128 = softfloat_shortShiftLeft128( sig64, sig0, -shiftDist );
             sig64 = sig128.v64;
             sig0  = sig128.v0;
+            sig256[indexWord(4, 3)] = sig64;
+            sig256[indexWord(4, 2)] = sig0;
         }
     } else {
         /*--------------------------------------------------------------------
@@ -88,8 +95,10 @@ int_fast64_t f128_to_i64( float128_t a, uint_fast8_t roundingMode, bool exact )
         sigExtra = softfloat_shiftRightJam64Extra( sig64, sig0, shiftDist );
         sig64 = sigExtra.v;
         sig0  = sigExtra.extra;
+
+        softfloat_shiftRightJam256M(sig256, shiftDist, sig256);
     }
-    return softfloat_roundToI64( sign, sig64, sig0, roundingMode, exact );
+    return softfloat_roundToI64( sign, sig64, sig0, roundingMode, exact, sig256 );
 
 }
 
