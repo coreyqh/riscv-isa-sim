@@ -59,6 +59,15 @@ bfloat16_t bf16_mulAdd( bfloat16_t a, bfloat16_t b, bfloat16_t c )
      * differs from C's sign. */
 
     softfloat_clearIntermResults();
+    int16_t expA = expBF16UI(a.v) - BF16_EXP_BIAS;
+    int16_t expB = expBF16UI(b.v) - BF16_EXP_BIAS;
+    int16_t unshifted_prod_exp = expA + expB;
+    int16_t prod_exp = expF64UI(prod.v) - /* F64_EXP_BIAS */ 1023;
+
+    softfloat_intermediateResult.fmaPreAddition[indexWord(4, 0)] = fracF64UI(prod.v) | (1ul << 52);
+    if (unshifted_prod_exp != prod_exp) {
+        softfloat_intermediateResult.fmaPreAddition[indexWord(4, 0)] <<= 1;
+    }
 
     if ( softfloat_roundingMode == softfloat_round_min
              && sum.v == 0

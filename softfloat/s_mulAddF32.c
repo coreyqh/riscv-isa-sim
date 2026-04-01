@@ -119,6 +119,10 @@ float32_t
     sigA = (sigA | 0x00800000)<<7;
     sigB = (sigB | 0x00800000)<<7;
     sigProd = (uint_fast64_t) sigA * sigB;
+
+    // We will align them later
+    softfloat_intermediateResult.fmaPreAddition[indexWord(4, 0)] = sigProd;
+
     if ( sigProd < UINT64_C( 0x2000000000000000 ) ) {
         --expProd;
         sigProd <<= 1;

@@ -91,7 +91,7 @@ typedef struct extFloat80M extFloat80_t;
 | A simple struct for holding the internal pre-rounding results in "infinite"
 | precision format. This is used to store the intermediate results of operations
 | in a global variable that can be accessed from a simple function for the sake
-| of floating point functional coverage based on pre-rounding results. 
+| of floating point functional coverage based on pre-rounding results.
 | See github.com/coreyqh/cover-float.
 | This needs to be bit enough to hold pre-rounding quads, as it would be 
 | cumbersome to have a separate global variable for the pre- rounding results
@@ -104,6 +104,8 @@ typedef struct {
    uint64_t sig0;
    uint64_t sigExtra64;
    uint64_t sigExtra0;
+
+   uint64_t fmaPreAddition[4];
 } intermResult_t;
 
 #endif

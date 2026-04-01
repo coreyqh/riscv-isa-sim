@@ -141,6 +141,13 @@ float128_t
     softfloat_mul128To256M( sigA.v64, sigA.v0, sigB.v64, sigB.v0, sig256Z );
     sigZ.v64 = sig256Z[indexWord( 4, 3 )];
     sigZ.v0  = sig256Z[indexWord( 4, 2 )];
+
+    // Extract sigProd
+    softfloat_intermediateResult.fmaPreAddition[indexWord(4, 3)] = sig256Z[indexWord(4, 3)];
+    softfloat_intermediateResult.fmaPreAddition[indexWord(4, 2)] = sig256Z[indexWord(4, 2)];
+    softfloat_intermediateResult.fmaPreAddition[indexWord(4, 1)] = sig256Z[indexWord(4, 1)];
+    softfloat_intermediateResult.fmaPreAddition[indexWord(4, 0)] = sig256Z[indexWord(4, 0)];
+
     shiftDist = 0;
     if ( ! (sigZ.v64 & UINT64_C( 0x0100000000000000 )) ) {
         --expZ;
