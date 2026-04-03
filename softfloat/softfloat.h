@@ -105,6 +105,7 @@ enum {
 | Pre-rounding result of the last float producing operation
 *----------------------------------------------------------------------------*/
 extern THREAD_LOCAL intermResult_t softfloat_intermediateResult;
+extern THREAD_LOCAL fmaFullShiftInfo_t softfloat_fmaAddShiftInfo;
 // extern THREAD_LOCAL intermResult_t * softfloat_intermediateResult;
 
 /*----------------------------------------------------------------------------

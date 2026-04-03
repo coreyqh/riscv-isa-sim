@@ -167,6 +167,17 @@ float128_t
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     expDiff = expZ - expC;
+
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 0)] = sig256Z[indexWord(4, 0)];
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 1)] = sig256Z[indexWord(4, 1)];
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 2)] = sig256Z[indexWord(4, 2)];
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 3)] = sig256Z[indexWord(4, 3)];
+
+    softfloat_fmaAddShiftInfo.sigC[indexWord(2, 0)] = sigC.v0;
+    softfloat_fmaAddShiftInfo.sigC[indexWord(2, 1)] = sigC.v64;
+    softfloat_fmaAddShiftInfo.signed_shift = expDiff;
+
+
     if ( expDiff < 0 ) {
         expZ = expC;
         if ( (signZ == signC) || (expDiff < -1) ) {
@@ -229,6 +240,8 @@ float128_t
             ++expZ;
             shiftDist = 9;
         }
+
+        softfloat_fmaAddShiftInfo.mode = PROD_ADD_C;
     } else {
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
@@ -246,6 +259,8 @@ float128_t
                 sig256C[indexWord( 4, 1 )] = 0;
                 sig256C[indexWord( 4, 0 )] = 0;
                 softfloat_sub256M(sig256C, sig256Z, sig256Z);
+
+                softfloat_fmaAddShiftInfo.mode = C_SUB_PROD;
 
                 if ( sigZExtra ) {
                     sigZ = softfloat_sub128( sigZ.v64, sigZ.v0, 0, 1 );
@@ -265,6 +280,9 @@ float128_t
         } else if ( ! expDiff ) {
             // No changes needed for this if
             sigZ = softfloat_sub128( sigZ.v64, sigZ.v0, sigC.v64, sigC.v0 );
+
+            softfloat_fmaAddShiftInfo.mode = PROD_SUB_C;
+
             if (
                 ! (sigZ.v64 | sigZ.v0) && ! sig256Z[indexWord( 4, 1 )]
                     && ! sig256Z[indexWord( 4, 0 )]
@@ -279,6 +297,9 @@ float128_t
             }
         } else {
             softfloat_sub256M( sig256Z, sig256C, sig256Z );
+
+            softfloat_fmaAddShiftInfo.mode = PROD_SUB_C;
+
             if ( 1 < expDiff ) {
                 sigZ.v64 = sig256Z[indexWord( 4, 3 )];
                 sigZ.v0  = sig256Z[indexWord( 4, 2 )];

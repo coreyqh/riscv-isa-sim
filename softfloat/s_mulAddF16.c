@@ -143,6 +143,16 @@ float16_t
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     expDiff = expProd - expC;
+
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 0)] = sigProd;
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 1)] = 0;
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 2)] = 0;
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 3)] = 0;
+
+    softfloat_fmaAddShiftInfo.sigC[indexWord(2, 0)] = sigC;
+    softfloat_fmaAddShiftInfo.sigC[indexWord(2, 1)] = 0;
+    softfloat_fmaAddShiftInfo.signed_shift = expDiff;
+
     if ( signProd == signC ) {
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
@@ -163,6 +173,8 @@ float16_t
             sigZ <<= 1;
             sig32Z <<= 1;
         }
+
+        softfloat_fmaAddShiftInfo.mode = PROD_ADD_C;
     } else {
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
@@ -171,9 +183,14 @@ float16_t
             signZ = signC;
             expZ = expC;
             sig32Z = sig32C - softfloat_shiftRightJam32( sigProd, -expDiff );
+
+            softfloat_fmaAddShiftInfo.mode = C_SUB_PROD;
         } else if ( ! expDiff ) {
             expZ = expProd;
             sig32Z = sigProd - sig32C;
+
+            softfloat_fmaAddShiftInfo.mode = PROD_SUB_C;
+
             if ( ! sig32Z ) goto completeCancellation;
             if ( sig32Z & 0x80000000 ) {
                 signZ = ! signZ;
@@ -182,6 +199,8 @@ float16_t
         } else {
             expZ = expProd;
             sig32Z = sigProd - softfloat_shiftRightJam32( sig32C, expDiff );
+
+            softfloat_fmaAddShiftInfo.mode = PROD_SUB_C;
         }
         shiftDist = softfloat_countLeadingZeros32( sig32Z ) - 1;
         expZ -= shiftDist;

@@ -145,6 +145,16 @@ float64_t
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
     expDiff = expZ - expC;
+
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 0)] = sig128Z.v0;
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 1)] = sig128Z.v64;
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 2)] = 0;
+    softfloat_fmaAddShiftInfo.sigProd[indexWord(4, 3)] = 0;
+
+    softfloat_fmaAddShiftInfo.sigC[indexWord(2, 0)] = sigC;
+    softfloat_fmaAddShiftInfo.sigC[indexWord(2, 1)] = 0;
+    softfloat_fmaAddShiftInfo.signed_shift = expDiff;
+
     if ( expDiff < 0 ) {
         expZ = expC;
         if ( (signZ == signC) || (expDiff < -1) ) {
@@ -176,14 +186,21 @@ float64_t
             sigZ <<= 1;
             sig128Z = softfloat_shortShiftLeft128( sig128Z.v64, sig128Z.v0, 1 );
         }
+
+        softfloat_fmaAddShiftInfo.mode = PROD_ADD_C;
     } else {
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
         if ( expDiff < 0 ) {
             signZ = signC;
             sig128Z = softfloat_sub128( sigC, 0, sig128Z.v64, sig128Z.v0 );
+
+            softfloat_fmaAddShiftInfo.mode = C_SUB_PROD;
         } else if ( ! expDiff ) {
             sig128Z.v64 = sig128Z.v64 - sigC;
+
+            softfloat_fmaAddShiftInfo.mode = PROD_SUB_C;
+
             if ( ! (sig128Z.v64 | sig128Z.v0) ) goto completeCancellation;
             if ( sig128Z.v64 & UINT64_C( 0x8000000000000000 ) ) {
                 signZ = ! signZ;
@@ -193,6 +210,8 @@ float64_t
             sig128Z =
                 softfloat_sub128(
                     sig128Z.v64, sig128Z.v0, sig128C.v64, sig128C.v0 );
+
+            softfloat_fmaAddShiftInfo.mode = PROD_SUB_C;
         }
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
