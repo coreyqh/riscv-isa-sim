@@ -52,7 +52,10 @@ float64_t
         uZ.ui = packToF64UI( sign, sig ? exp : 0, sig<<(shiftDist - 10) );
         return uZ.f;
     } else {
-        return softfloat_roundPackToF64( sign, exp, sig<<shiftDist, softfloat_shortShiftLeft128(sig128.v64, sig128.v0, shiftDist) );
+        if (shiftDist != 0) {
+            sig128 = softfloat_shortShiftLeft128(sig128.v64, sig128.v0, shiftDist);
+        }
+        return softfloat_roundPackToF64( sign, exp, sig<<shiftDist, sig128 );
     }
 
 }
