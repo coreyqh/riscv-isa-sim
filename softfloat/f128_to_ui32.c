@@ -76,13 +76,17 @@ uint_fast32_t
 #endif
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
-    if ( exp ) sig64 |= UINT64_C( 0x0001000000000000 );
-    shiftDist = 0x4023 - exp;
-
-    sig256[indexWord(4, 3)] = sig64;
+    sig256[indexWord(4, 3)] = uiA64;
     sig256[indexWord(4, 2)] = uiA0;
     sig256[indexWord(4, 1)] = 0;
     sig256[indexWord(4, 0)] = 0;
+
+    if ( exp ) {
+        sig64 |= UINT64_C( 0x0001000000000000 );
+        sig256[indexWord(4, 3)] |= UINT64_C( 0x0001000000000000 );
+    }
+    shiftDist = 0x4023 - exp;
+
 
     if ( 0 < shiftDist ) {
         sig64 = softfloat_shiftRightJam64( sig64, shiftDist );
