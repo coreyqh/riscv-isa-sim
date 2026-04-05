@@ -42,10 +42,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 float16_t ui32_to_f16( uint32_t a )
 {
     int_fast8_t shiftDist;
-    int_fast8_t shiftDist32;
+    int_fast8_t shiftDist64;
     union ui16_f16 u;
     uint_fast16_t sig;
-    uint_fast32_t sig32;
+    uint64_t sig64;
 
     shiftDist = softfloat_countLeadingZeros32( a ) - 21;
     if ( 0 <= shiftDist ) {
@@ -61,13 +61,13 @@ float16_t ui32_to_f16( uint32_t a )
                 ? a>>(-shiftDist) | ((uint32_t) (a<<(shiftDist & 31)) != 0)
                 : (uint_fast16_t) a<<shiftDist;
 
-        shiftDist32 = shiftDist + 16;
-        sig32 = 
-            (shiftDist32 < 0) 
-                ? softfloat_shiftRightJam32(a, -shiftDist32)
-                : (uint_fast32_t) a << shiftDist32;
+        shiftDist64 = shiftDist + 48;
+        sig64 = 
+            (shiftDist64 < 0) 
+                ? softfloat_shiftRightJam64(a, -shiftDist64)
+                : (uint_fast32_t) a << shiftDist64;
 
-        return softfloat_roundPackToF16( 0, 0x1C - shiftDist, sig, sig32 );
+        return softfloat_roundPackToF16( 0, 0x1C - shiftDist, sig, sig64 );
     }
 
 }

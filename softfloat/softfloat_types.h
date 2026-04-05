@@ -108,5 +108,17 @@ typedef struct {
    uint64_t fmaPreAddition[4];
 } intermResult_t;
 
+typedef struct {
+   uint64_t sigProd[4];
+   uint64_t sigC[2];
+   int32_t signed_shift;
+   enum {
+      NONE = 0,
+      PROD_ADD_C,
+      PROD_SUB_C,
+      C_SUB_PROD,
+   } mode;
+} fmaFullShiftInfo_t;
+
 #endif
 

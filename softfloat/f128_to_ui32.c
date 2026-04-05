@@ -50,6 +50,7 @@ uint_fast32_t
     int_fast32_t exp;
     uint_fast64_t sig64;
     int_fast32_t shiftDist;
+    uint64_t sig256[4];
 
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
@@ -75,12 +76,23 @@ uint_fast32_t
 #endif
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
-    if ( exp ) sig64 |= UINT64_C( 0x0001000000000000 );
+    sig256[indexWord(4, 3)] = uiA64;
+    sig256[indexWord(4, 2)] = uiA0;
+    sig256[indexWord(4, 1)] = 0;
+    sig256[indexWord(4, 0)] = 0;
+
+    if ( exp ) {
+        sig64 |= UINT64_C( 0x0001000000000000 );
+        sig256[indexWord(4, 3)] |= UINT64_C( 0x0001000000000000 );
+    }
     shiftDist = 0x4023 - exp;
+
+
     if ( 0 < shiftDist ) {
         sig64 = softfloat_shiftRightJam64( sig64, shiftDist );
+        softfloat_shiftRightJam256M(sig256, shiftDist, sig256);
     }
-    return softfloat_roundToUI32( sign, sig64, roundingMode, exact );
+    return softfloat_roundToUI32( sign, sig64, roundingMode, exact, sig256 );
 
 }
 

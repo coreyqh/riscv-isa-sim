@@ -45,7 +45,7 @@ float16_t ui64_to_f16( uint64_t a )
     int_fast8_t shiftDist64;
     union ui16_f16 u;
     uint_fast16_t sig;
-    uint_fast64_t sig64;
+    struct uint128 sig128;
 
     shiftDist = softfloat_countLeadingZeros64( a ) - 53;
     if ( 0 <= shiftDist ) {
@@ -62,12 +62,14 @@ float16_t ui64_to_f16( uint64_t a )
 
         // We lose information if we pass it as sig32
         shiftDist64 = shiftDist + 48;
-        sig64 =
-            (shiftDist64 < 0)
-                ? softfloat_shortShiftRightJam64( a, -shiftDist64 )
-                : (uint_fast16_t) a<<shiftDist64;
-        softfloat_intermediateResult.sig64 = sig64;
-        softfloat_intermediateResult.sig0 = 0;
+        if (shiftDist64 < 0) {
+            sig128 = softfloat_shortShiftRightJam128(a, 0, -shiftDist64);
+        } else {
+            sig128.v64 = a << shiftDist64;
+            sig128.v0 = 0;
+        }
+        softfloat_intermediateResult.sig64 = sig128.v64;
+        softfloat_intermediateResult.sig0 = sig128.v0;
         softfloat_intermediateResult.sigExtra64 = 0;
         softfloat_intermediateResult.sigExtra0 = 0;
 

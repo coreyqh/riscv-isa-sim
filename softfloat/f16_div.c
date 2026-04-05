@@ -157,7 +157,7 @@ float16_t f16_div( float16_t a, float16_t b )
         }
     }
 #endif
-    return softfloat_roundPackToF16( signZ, expZ, sigZ, sigZ << 16 );
+    return softfloat_roundPackToF16( signZ, expZ, sigZ, (uint64_t)sigZ << 48 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

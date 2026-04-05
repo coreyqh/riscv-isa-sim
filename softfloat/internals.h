@@ -66,22 +66,22 @@ enum {
 
 /*----------------------------------------------------------------------------
 *----------------------------------------------------------------------------*/
-uint_fast32_t softfloat_roundToUI32( bool, uint_fast64_t, uint_fast8_t, bool );
+uint_fast32_t softfloat_roundToUI32( bool, uint_fast64_t, uint_fast8_t, bool, uint64_t* );
 
 #ifdef SOFTFLOAT_FAST_INT64
 uint_fast64_t
  softfloat_roundToUI64(
-     bool, uint_fast64_t, uint_fast64_t, uint_fast8_t, bool );
+     bool, uint_fast64_t, uint_fast64_t, uint_fast8_t, bool, uint64_t* );
 #else
 uint_fast64_t softfloat_roundMToUI64( bool, uint32_t *, uint_fast8_t, bool );
 #endif
 
-int_fast32_t softfloat_roundToI32( bool, uint_fast64_t, uint_fast8_t, bool );
+int_fast32_t softfloat_roundToI32( bool, uint_fast64_t, uint_fast8_t, bool, uint64_t* sig256 );
 
 #ifdef SOFTFLOAT_FAST_INT64
 int_fast64_t
  softfloat_roundToI64(
-     bool, uint_fast64_t, uint_fast64_t, uint_fast8_t, bool );
+     bool, uint_fast64_t, uint_fast64_t, uint_fast8_t, bool, uint64_t* sig256 );
 #else
 int_fast64_t softfloat_roundMToI64( bool, uint32_t *, uint_fast8_t, bool );
 #endif
@@ -140,8 +140,8 @@ float8_t softfloat_roundPackToE5M2( bool, int_fast16_t, uint_fast16_t, bool );
 struct exp8_sig16 { int_fast8_t exp; uint_fast16_t sig; };
 struct exp8_sig16 softfloat_normSubnormalF16Sig( uint_fast16_t );
 
-float16_t softfloat_roundPackToF16( bool, int_fast16_t, uint_fast16_t, uint_fast32_t );
-float16_t softfloat_normRoundPackToF16( bool, int_fast16_t, uint_fast16_t, uint_fast32_t );
+float16_t softfloat_roundPackToF16( bool, int_fast16_t, uint_fast16_t, uint64_t );
+float16_t softfloat_normRoundPackToF16( bool, int_fast16_t, uint_fast16_t, uint64_t );
 
 float16_t softfloat_addMagsF16( uint_fast16_t, uint_fast16_t );
 float16_t softfloat_subMagsF16( uint_fast16_t, uint_fast16_t );

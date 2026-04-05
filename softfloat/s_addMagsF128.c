@@ -111,7 +111,7 @@ float128_t
         expZ = expB;
         if ( expA ) {
             sigA.v64 |= UINT64_C( 0x0001000000000000 );
-            sig256A[indexWord(4, 3)] |= UINT64_C( 0x0002000000000000 );
+            sig256A[indexWord(4, 3)] |= UINT64_C( 0x0001000000000000 );
         } else {
             ++expDiff;
             sigZExtra = 0;
@@ -132,7 +132,7 @@ float128_t
         expZ = expA;
         if ( expB ) {
             sigB.v64 |= UINT64_C( 0x0001000000000000 );
-            sig256B[indexWord(4, 3)] |= UINT64_C( 0x0002000000000000 );
+            sig256B[indexWord(4, 3)] |= UINT64_C( 0x0001000000000000 );
         } else {
             --expDiff;
             sigZExtra = 0;
@@ -152,6 +152,7 @@ float128_t
             sigB.v64,
             sigB.v0
         );
+    sig256A[indexWord(4, 3)] |= UINT64_C( 0x0001000000000000 );
     softfloat_add256M(sig256A, sig256B, sig256Z);
     --expZ;
     if ( sigZ.v64 < UINT64_C( 0x0002000000000000 ) ) goto roundAndPack;

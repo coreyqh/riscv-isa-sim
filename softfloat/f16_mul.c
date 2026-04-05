@@ -113,7 +113,7 @@ float16_t f16_mul( float16_t a, float16_t b )
         sigZ <<= 1;
         sig32Z <<= 1;
     }
-    return softfloat_roundPackToF16( signZ, expZ, sigZ, sig32Z );
+    return softfloat_roundPackToF16( signZ, expZ, sigZ, (uint64_t)sig32Z << 32 );
     /*------------------------------------------------------------------------
     *------------------------------------------------------------------------*/
  propagateNaN:

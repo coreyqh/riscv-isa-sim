@@ -48,6 +48,7 @@ THREAD_LOCAL uint_fast8_t softfloat_roundingMode = softfloat_round_near_even;
 THREAD_LOCAL uint_fast8_t softfloat_detectTininess = init_detectTininess;
 THREAD_LOCAL uint_fast8_t softfloat_exceptionFlags = 0;
 THREAD_LOCAL intermResult_t softfloat_intermediateResult;
+THREAD_LOCAL fmaFullShiftInfo_t softfloat_fmaAddShiftInfo;
 
 THREAD_LOCAL uint_fast8_t extF80_roundingPrecision = 80;
 
