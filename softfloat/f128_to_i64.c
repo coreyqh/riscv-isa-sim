@@ -81,6 +81,7 @@ int_fast64_t f128_to_i64( float128_t a, uint_fast8_t roundingMode, bool exact )
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
         sig64 |= UINT64_C( 0x0001000000000000 );
+        sig256[indexWord(4, 3)] |= UINT64_C( 0x0001000000000000 );
         if ( shiftDist ) {
             sig128 = softfloat_shortShiftLeft128( sig64, sig0, -shiftDist );
             sig64 = sig128.v64;
@@ -91,7 +92,10 @@ int_fast64_t f128_to_i64( float128_t a, uint_fast8_t roundingMode, bool exact )
     } else {
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
-        if ( exp ) sig64 |= UINT64_C( 0x0001000000000000 );
+        if ( exp ) {
+            sig64 |= UINT64_C( 0x0001000000000000 );
+            sig256[indexWord(4, 3)] |= UINT64_C( 0x0001000000000000 );
+        }
         sigExtra = softfloat_shiftRightJam64Extra( sig64, sig0, shiftDist );
         sig64 = sigExtra.v;
         sig0  = sigExtra.extra;
