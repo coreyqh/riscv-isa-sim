@@ -44,6 +44,14 @@ bfloat16_t bf16_sqrt( bfloat16_t a )
 {
     float32_t f32A = { (uint_fast32_t)a.v << 16 };
 
-    return f32_to_bf16 ( f32_sqrt ( f32A ) );
+    float32_t f32_res = f32_sqrt ( f32A );
+
+    // Save intermediate results now in case they are clobbered by the convert
+    intermResult_t interm_res = softfloat_intermediateResult;
+    bfloat16_t bf16_res = f32_to_bf16(f32_res);
+
+    softfloat_intermediateResult = interm_res;
+
+    return bf16_res;
 }
 

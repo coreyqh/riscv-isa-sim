@@ -45,6 +45,14 @@ bfloat16_t bf16_div( bfloat16_t a, bfloat16_t b )
     float32_t f32A = { (uint_fast32_t)a.v << 16 };
     float32_t f32B = { (uint_fast32_t)b.v << 16 };
 
-    return f32_to_bf16 ( f32_div ( f32A, f32B ) );
+    float32_t f32_res = f32_div ( f32A, f32B );
+
+    // Save intermediate results now in case they are clobbered by the convert
+    intermResult_t interm_res = softfloat_intermediateResult;
+    bfloat16_t bf16_res = f32_to_bf16(f32_res);
+
+    softfloat_intermediateResult = interm_res;
+
+    return bf16_res;
 }
 
