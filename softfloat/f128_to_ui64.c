@@ -82,6 +82,7 @@ uint_fast64_t
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
         sig64 |= UINT64_C( 0x0001000000000000 );
+        sig256[indexWord(4, 3)] |=  UINT64_C( 0x0001000000000000 );
         if ( shiftDist ) {
             sig128 = softfloat_shortShiftLeft128( sig64, sig0, -shiftDist );
             sig64 = sig128.v64;
@@ -92,7 +93,10 @@ uint_fast64_t
     } else {
         /*--------------------------------------------------------------------
         *--------------------------------------------------------------------*/
-        if ( exp ) sig64 |= UINT64_C( 0x0001000000000000 );
+        if ( exp ) {
+            sig64 |= UINT64_C( 0x0001000000000000 );
+            sig256[indexWord(4, 3)] |=  UINT64_C( 0x0001000000000000 );
+        }
         sigExtra = softfloat_shiftRightJam64Extra( sig64, sig0, shiftDist );
         sig64 = sigExtra.v;
         sig0  = sigExtra.extra;

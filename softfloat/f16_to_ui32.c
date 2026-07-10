@@ -76,6 +76,7 @@ uint_fast32_t f16_to_ui32( float16_t a, uint_fast8_t roundingMode, bool exact )
     sig256[indexWord(4, 0)] = 0;
     if ( exp ) {
         sig32 |= 0x0400;
+        sig256[indexWord(4, 3)] |= 0x400;
         shiftDist = exp - 0x19;
         if ( (0 <= shiftDist) && ! sign ) {
             return sig32<<shiftDist;
@@ -84,6 +85,8 @@ uint_fast32_t f16_to_ui32( float16_t a, uint_fast8_t roundingMode, bool exact )
         if ( 0 < shiftDist ) { 
             sig32 <<= shiftDist;
             sig256[indexWord(4, 3)] <<= shiftDist;
+        } else {
+            softfloat_shiftRightJam256M(sig256, -shiftDist, sig256);
         }
     }
     return softfloat_roundToUI32( sign, sig32, roundingMode, exact, sig256 );
