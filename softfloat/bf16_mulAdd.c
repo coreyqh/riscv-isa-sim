@@ -59,8 +59,30 @@ bfloat16_t bf16_mulAdd( bfloat16_t a, bfloat16_t b, bfloat16_t c )
      * differs from C's sign. */
 
     softfloat_clearIntermResults();
-    int16_t expA = expBF16UI(a.v) - BF16_EXP_BIAS;
-    int16_t expB = expBF16UI(b.v) - BF16_EXP_BIAS;
+    int16_t expA = expBF16UI(a.v);
+    int16_t expB = expBF16UI(b.v);
+
+    // Handle Subnormal Effective Exponents
+    if ( !expA ) {
+        uint_fast32_t sigA = fracBF16UI( a.v );
+        if ( sigA ) {
+            // The zero case is unimportant to handle here
+            struct exp16_sig32 normExpSig = softfloat_normSubnormalF32Sig( sigA << 16 );
+            expA = normExpSig.exp;
+        }
+    }
+    if ( !expB ) {
+        uint_fast32_t sigB = fracBF16UI( b.v );
+        if ( sigB ) {
+            // The zero case is unimportant to handle here
+            struct exp16_sig32 normExpSig = softfloat_normSubnormalF32Sig( sigB << 16 );
+            expB = normExpSig.exp;
+        }
+    }
+
+    expA -= BF16_EXP_BIAS;
+    expB -= BF16_EXP_BIAS;
+
     int16_t unshifted_prod_exp = expA + expB;
     int16_t prod_exp = expF64UI(prod.v) - /* F64_EXP_BIAS */ 1023;
 
